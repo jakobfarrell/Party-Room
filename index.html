@@ -371,6 +371,19 @@
                 <button id="ready-button" class="full-button">
                     Mark Ready
                 </button>
+            
+                <button
+                    id="start-game-button"
+                    class="full-button"
+                    style="margin-top: 12px;"
+                    disabled
+                >
+                    Start Game
+                </button>
+            
+                <p id="start-game-message" class="subtitle">
+                    Waiting for all players to be ready.
+                </p>
             </div>
 
 <button id="leave-room-button" class="secondary-button full-button">
@@ -421,6 +434,8 @@
         const createButton = document.getElementById("create-room-button");
         const joinButton = document.getElementById("join-room-button");
         const readyButton = document.getElementById("ready-button");
+        const startGameButton = document.getElementById("start-game-button");
+        const startGameMessage = document.getElementById("start-game-message");
         const editProfileButton = document.getElementById("edit-profile-button");
         const editProfilePanel = document.getElementById("edit-profile-panel");
         const editProfileForm = document.getElementById("edit-profile-form");
@@ -754,6 +769,59 @@ editProfileForm.addEventListener("submit", async (event) => {
                     });
 
                     const isHost = info.hostUid === currentUser.uid;
+                    // Check whether everyone is ready.
+                    const allPlayersReady =
+                        players.length >= 2 &&
+                        players.every(([uid, player]) => player.ready === true);
+                    
+                    // Check whether the game has already been started.
+                    const gameStarted = info.gameStarted === true;
+                    
+                    // Only the host can start the game, and only when everyone is ready.
+                    startGameButton.disabled =
+                        !isHost || !allPlayersReady || gameStarted;
+                    
+                    if (!isHost) {
+                    
+                        startGameButton.textContent = "Host Controls Game";
+                    
+                    } else if (gameStarted) {
+                    
+                        startGameButton.textContent = "Game Started";
+                    
+                    } else {
+                    
+                        startGameButton.textContent = "Start Game";
+                    
+                    }
+                    
+                    // Update the instructions underneath the button.
+                    if (gameStarted) {
+                    
+                        startGameMessage.textContent =
+                            "The host has started the game!";
+                    
+                    } else if (!isHost) {
+                    
+                        startGameMessage.textContent =
+                            "Waiting for the host to start the game.";
+                    
+                    } else if (players.length < 2) {
+                    
+                        startGameMessage.textContent =
+                            "At least two players are needed.";
+                    
+                    } else if (!allPlayersReady) {
+                    
+                        startGameMessage.textContent =
+                            "Waiting for all players to be ready.";
+                    
+                    } else {
+                    
+                        startGameMessage.textContent =
+                            "Everyone is ready! You can start the game.";
+                    
+                    }
 
                     document.getElementById("host-message").textContent =
                         isHost
@@ -813,6 +881,41 @@ readyButton.addEventListener("click", async () => {
     }
 
     readyButton.disabled = false;
+
+});
+        // Start the game (host only)
+startGameButton.addEventListener("click", async () => {
+
+    if (!currentRoomCode || !currentUser) {
+        return;
+    }
+
+    startGameButton.disabled = true;
+
+    try {
+
+        const roomRef = ref(
+            database,
+            "rooms/" + currentRoomCode + "/info"
+        );
+
+        await update(roomRef, {
+            gameStarted: true,
+            startedAt: Date.now()
+        });
+
+        showStatus("Game started!", "#4ade80");
+
+    } catch (error) {
+
+        console.error(error);
+
+        showStatus(
+            "Could not start the game: " + error.message,
+            "#f87171"
+        );
+
+    }
 
 });
         // Copy room code
