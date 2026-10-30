@@ -253,6 +253,62 @@
                 <h2 id="home-username">Player</h2>
                 <p class="subtitle">Welcome to Party Room!</p>
             </div>
+            <div style="text-align:center; margin-bottom:20px;">
+    <button id="edit-profile-button" class="secondary-button">
+        Edit Profile
+    </button>
+</div>
+
+<div id="edit-profile-panel" class="section hidden">
+    <h2>Edit Your Profile</h2>
+
+    <form id="edit-profile-form">
+
+        <label for="edit-username">Username</label>
+        <input
+            id="edit-username"
+            type="text"
+            minlength="3"
+            maxlength="16"
+            required
+            autocomplete="off"
+        >
+
+        <label for="edit-avatar">Choose your avatar</label>
+        <select id="edit-avatar">
+            <option value="😎">😎 Cool</option>
+            <option value="👾">👾 Alien</option>
+            <option value="🤖">🤖 Robot</option>
+            <option value="🐸">🐸 Frog</option>
+            <option value="🦊">🦊 Fox</option>
+            <option value="🐼">🐼 Panda</option>
+            <option value="👻">👻 Ghost</option>
+            <option value="🦄">🦄 Unicorn</option>
+            <option value="🐙">🐙 Octopus</option>
+            <option value="🦖">🦖 Dinosaur</option>
+            <option value="🐧">🐧 Penguin</option>
+            <option value="🐱">🐱 Cat</option>
+            <option value="🐶">🐶 Dog</option>
+            <option value="🍕">🍕 Pizza</option>
+            <option value="💀">💀 Skull</option>
+        </select>
+
+        <div class="button-row">
+            <button type="submit" id="save-profile-button">
+                Save Changes
+            </button>
+
+            <button
+                type="button"
+                id="cancel-edit-button"
+                class="secondary-button"
+            >
+                Cancel
+            </button>
+        </div>
+
+    </form>
+</div>
 
             <div class="section">
                 <h2>Create a Room</h2>
@@ -357,6 +413,13 @@
 
         const createButton = document.getElementById("create-room-button");
         const joinButton = document.getElementById("join-room-button");
+        const editProfileButton = document.getElementById("edit-profile-button");
+        const editProfilePanel = document.getElementById("edit-profile-panel");
+        const editProfileForm = document.getElementById("edit-profile-form");
+        const editUsernameInput = document.getElementById("edit-username");
+        const editAvatarInput = document.getElementById("edit-avatar");
+        const saveProfileButton = document.getElementById("save-profile-button");
+        const cancelEditButton = document.getElementById("cancel-edit-button");
 
         let currentUser = null;
         let currentProfile = null;
@@ -462,7 +525,85 @@
             button.disabled = false;
         });
 
+        // Open the profile editor
+editProfileButton.addEventListener("click", () => {
 
+    editUsernameInput.value = currentProfile.username;
+    editAvatarInput.value = currentProfile.avatar;
+
+    editProfilePanel.classList.remove("hidden");
+
+    showStatus("Edit your username or avatar.");
+
+});
+
+
+// Cancel profile editing
+cancelEditButton.addEventListener("click", () => {
+
+    editProfilePanel.classList.add("hidden");
+
+    showStatus("Profile editing cancelled.", "#9ca3af");
+
+});
+
+
+// Save updated player profile
+editProfileForm.addEventListener("submit", async (event) => {
+
+    event.preventDefault();
+
+    const username = editUsernameInput.value.trim();
+    const avatar = editAvatarInput.value;
+
+    if (username.length < 3 || username.length > 16) {
+        showStatus("Username must be 3–16 characters.", "#f87171");
+        return;
+    }
+
+    saveProfileButton.disabled = true;
+
+    showStatus("Saving profile changes...");
+
+    try {
+
+        const updatedProfile = {
+            username: username,
+            avatar: avatar,
+            createdAt: currentProfile.createdAt || Date.now()
+        };
+
+        await set(
+            ref(database, "players/" + currentUser.uid),
+            updatedProfile
+        );
+
+        currentProfile = updatedProfile;
+
+        document.getElementById("home-username").textContent =
+            updatedProfile.username;
+
+        document.getElementById("home-avatar").textContent =
+            updatedProfile.avatar;
+
+        editProfilePanel.classList.add("hidden");
+
+        showStatus("Profile updated successfully!", "#4ade80");
+
+    } catch (error) {
+
+        console.error(error);
+
+        showStatus(
+            "Could not update profile: " + error.message,
+            "#f87171"
+        );
+
+    }
+
+    saveProfileButton.disabled = false;
+
+});
         // Create a private room
         createButton.addEventListener("click", async () => {
 
