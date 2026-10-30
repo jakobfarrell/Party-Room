@@ -1,12 +1,85 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Party Room</title>
+    <style>
+        body {
+            background: #111827;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+
+        .container {
+            background: #1f2937;
+            padding: 40px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 85%;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        #status {
+            color: #fbbf24;
+            margin-top: 25px;
+        }
+
+        #player-id {
+            color: #9ca3af;
+            font-size: 12px;
+            overflow-wrap: anywhere;
+        }
+    </style>
 </head>
 <body>
-    <h1>Party Room</h1>
-    <p>Our party starts here.</p>
+
+    <div class="container">
+        <h1>🎮 Party Room</h1>
+        <p>Our party starts here.</p>
+
+        <p id="status">Connecting to Firebase...</p>
+        <p id="player-id"></p>
+    </div>
+
+    <script type="module">
+        import { auth } from "./js/firebase-config.js";
+
+        import {
+            signInAnonymously,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
+
+        const status = document.getElementById("status");
+        const playerId = document.getElementById("player-id");
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                status.textContent = "Connected! Anonymous login successful.";
+                status.style.color = "#4ade80";
+
+                playerId.textContent = "Player ID: " + user.uid;
+            }
+        });
+
+        signInAnonymously(auth).catch((error) => {
+            console.error("Firebase authentication error:", error);
+
+            status.textContent = "Connection error: " + error.message;
+            status.style.color = "#f87171";
+        });
+    </script>
+
 </body>
 </html>
