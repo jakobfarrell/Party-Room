@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,61 +17,62 @@
             background: #111827;
             color: white;
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             margin: 0;
-            padding: 20px;
+            min-height: 100vh;
+            padding: 30px 16px;
         }
 
         .container {
             background: #1f2937;
-            padding: 40px;
-            border-radius: 18px;
-            max-width: 460px;
-            width: 100%;
-            text-align: center;
             border: 1px solid #374151;
+            border-radius: 18px;
+            padding: 32px;
+            max-width: 650px;
+            width: 100%;
+            margin: 40px auto;
         }
 
         h1 {
-            font-size: 38px;
-            margin-bottom: 8px;
+            font-size: 36px;
+            margin: 0 0 8px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 0;
         }
 
         .subtitle {
             color: #9ca3af;
+            text-align: center;
             margin-bottom: 30px;
         }
 
         label {
             display: block;
-            text-align: left;
-            margin-bottom: 8px;
-            font-size: 14px;
             color: #d1d5db;
+            font-size: 14px;
+            margin-bottom: 8px;
         }
 
         input, select {
             width: 100%;
-            padding: 14px;
-            border-radius: 8px;
+            padding: 13px;
             border: 1px solid #4b5563;
+            border-radius: 8px;
             background: #111827;
             color: white;
             font-size: 16px;
-            margin-bottom: 22px;
+            margin-bottom: 18px;
         }
 
         button {
-            width: 100%;
-            padding: 15px;
+            padding: 13px 18px;
             background: #7c3aed;
+            color: white;
             border: none;
             border-radius: 8px;
-            color: white;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
         }
@@ -84,74 +86,240 @@
             cursor: not-allowed;
         }
 
-        #status {
+        .full-button {
+            width: 100%;
+        }
+
+        .secondary-button {
+            background: #374151;
+        }
+
+        .secondary-button:hover {
+            background: #4b5563;
+        }
+
+        .section {
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 12px;
+            padding: 22px;
             margin-top: 20px;
-            font-size: 14px;
-            color: #fbbf24;
         }
 
         .avatar-preview {
             font-size: 48px;
+            text-align: center;
             margin-bottom: 12px;
+        }
+
+        .profile-heading {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .profile-heading span {
+            font-size: 40px;
+        }
+
+        .room-code {
+            font-size: 34px;
+            font-weight: bold;
+            letter-spacing: 6px;
+            text-align: center;
+            color: #a78bfa;
+            margin: 18px 0;
+        }
+
+        .player {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px;
+            background: #1f2937;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .player-avatar {
+            font-size: 28px;
+        }
+
+        .player-name {
+            font-weight: bold;
+        }
+
+        .player-status {
+            margin-left: auto;
+            font-size: 12px;
+            color: #4ade80;
+        }
+
+        #status {
+            text-align: center;
+            color: #fbbf24;
+            margin-top: 20px;
+            overflow-wrap: anywhere;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid #374151;
+            margin: 24px 0;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button-row button {
+            flex: 1;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 22px;
+            }
+
+            .button-row {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="container">
+    <main class="container">
 
         <h1>🎮 Party Room</h1>
+        <p class="subtitle">Your games. Your friends. Your party.</p>
 
-        <p class="subtitle">
-            Your games. Your friends. Your party.
-        </p>
+        <!-- PROFILE SETUP -->
+        <section id="profile-screen" class="hidden">
 
-        <div class="avatar-preview" id="avatar-preview">😎</div>
+            <h2>Welcome! Create your player</h2>
 
-        <form id="profile-form">
+            <div class="avatar-preview" id="avatar-preview">😎</div>
 
-            <label for="username">Choose your username</label>
+            <form id="profile-form">
 
-            <input
-                type="text"
-                id="username"
-                placeholder="Enter a username"
-                minlength="3"
-                maxlength="16"
-                required
-                autocomplete="off"
-            >
+                <label for="username">Username</label>
+                <input
+                    id="username"
+                    type="text"
+                    minlength="3"
+                    maxlength="16"
+                    placeholder="Choose a username"
+                    required
+                    autocomplete="off"
+                >
 
-            <label for="avatar">Choose your avatar</label>
+                <label for="avatar">Choose your avatar</label>
+                <select id="avatar">
+                    <option value="😎">😎 Cool</option>
+                    <option value="👾">👾 Alien</option>
+                    <option value="🤖">🤖 Robot</option>
+                    <option value="🐸">🐸 Frog</option>
+                    <option value="🦊">🦊 Fox</option>
+                    <option value="🐼">🐼 Panda</option>
+                    <option value="👻">👻 Ghost</option>
+                    <option value="🦄">🦄 Unicorn</option>
+                    <option value="🐙">🐙 Octopus</option>
+                    <option value="🦖">🦖 Dinosaur</option>
+                    <option value="🐧">🐧 Penguin</option>
+                    <option value="🐱">🐱 Cat</option>
+                    <option value="🐶">🐶 Dog</option>
+                    <option value="🍕">🍕 Pizza</option>
+                    <option value="💀">💀 Skull</option>
+                </select>
 
-            <select id="avatar">
-                <option value="😎">😎 Cool</option>
-                <option value="👾">👾 Alien</option>
-                <option value="🤖">🤖 Robot</option>
-                <option value="🐸">🐸 Frog</option>
-                <option value="🦊">🦊 Fox</option>
-                <option value="🐼">🐼 Panda</option>
-                <option value="👻">👻 Ghost</option>
-                <option value="🦄">🦄 Unicorn</option>
-                <option value="🐙">🐙 Octopus</option>
-                <option value="🦖">🦖 Dinosaur</option>
-                <option value="🐧">🐧 Penguin</option>
-                <option value="🐱">🐱 Cat</option>
-                <option value="🐶">🐶 Dog</option>
-                <option value="🍕">🍕 Pizza</option>
-                <option value="💀">💀 Skull</option>
-            </select>
+                <button type="submit" class="full-button" id="profile-button">
+                    Create Player Profile
+                </button>
 
-            <button type="submit" id="submit-button" disabled>
-                Create Player Profile
+            </form>
+        </section>
+
+        <!-- MAIN MENU -->
+        <section id="home-screen" class="hidden">
+
+            <div class="profile-heading">
+                <span id="home-avatar">😎</span>
+                <h2 id="home-username">Player</h2>
+                <p class="subtitle">Welcome to Party Room!</p>
+            </div>
+
+            <div class="section">
+                <h2>Create a Room</h2>
+
+                <label for="room-name">Room name</label>
+                <input
+                    id="room-name"
+                    type="text"
+                    maxlength="30"
+                    placeholder="Game Night"
+                    value="Game Night"
+                >
+
+                <button id="create-room-button" class="full-button">
+                    Create Private Room
+                </button>
+            </div>
+
+            <div class="section">
+                <h2>Join a Room</h2>
+
+                <label for="room-code-input">Enter room code</label>
+                <input
+                    id="room-code-input"
+                    type="text"
+                    maxlength="6"
+                    placeholder="ABC123"
+                    autocomplete="off"
+                >
+
+                <button id="join-room-button" class="full-button">
+                    Join Room
+                </button>
+            </div>
+
+        </section>
+
+        <!-- ROOM LOBBY -->
+        <section id="room-screen" class="hidden">
+
+            <h2 id="room-title">Game Night</h2>
+            <p class="subtitle">Share this code with your friends.</p>
+
+            <div class="room-code" id="display-room-code"></div>
+
+            <div style="text-align:center;">
+                <button id="copy-code-button" class="secondary-button">
+                    Copy Room Code
+                </button>
+            </div>
+
+            <div class="section">
+                <h2>Players <span id="player-count">(0)</span></h2>
+                <div id="player-list"></div>
+            </div>
+
+            <p id="host-message" class="subtitle"></p>
+
+            <button id="leave-room-button" class="secondary-button full-button">
+                Return to Main Menu
             </button>
 
-        </form>
+        </section>
 
         <p id="status">Connecting to Party Room...</p>
 
-    </div>
+    </main>
 
     <script type="module">
 
@@ -164,95 +332,340 @@
 
         import {
             ref,
+            get,
             set
         } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
 
-        const form = document.getElementById("profile-form");
+        import {
+            createRoom,
+            joinRoom,
+            listenToRoom
+        } from "./js/room-manager.js";
+
+
+        // HTML elements
+        const profileScreen = document.getElementById("profile-screen");
+        const homeScreen = document.getElementById("home-screen");
+        const roomScreen = document.getElementById("room-screen");
+
+        const status = document.getElementById("status");
+
+        const profileForm = document.getElementById("profile-form");
         const usernameInput = document.getElementById("username");
         const avatarInput = document.getElementById("avatar");
         const avatarPreview = document.getElementById("avatar-preview");
-        const status = document.getElementById("status");
-        const submitButton = document.getElementById("submit-button");
+
+        const createButton = document.getElementById("create-room-button");
+        const joinButton = document.getElementById("join-room-button");
 
         let currentUser = null;
+        let currentProfile = null;
+        let currentRoomCode = null;
+        let stopListeningToRoom = null;
+
+
+        // Display one screen at a time
+        function showScreen(screen) {
+            profileScreen.classList.add("hidden");
+            homeScreen.classList.add("hidden");
+            roomScreen.classList.add("hidden");
+
+            screen.classList.remove("hidden");
+        }
+
+
+        function showStatus(message, color = "#fbbf24") {
+            status.textContent = message;
+            status.style.color = color;
+        }
+
+
+        // Load the saved player profile
+        async function loadPlayerProfile(user) {
+
+            const profileRef = ref(
+                database,
+                "players/" + user.uid
+            );
+
+            const snapshot = await get(profileRef);
+
+            if (snapshot.exists()) {
+                currentProfile = snapshot.val();
+                showHomeScreen();
+            } else {
+                showScreen(profileScreen);
+                showStatus("Choose your username and avatar.");
+            }
+        }
+
+
+        // Show the main menu
+        function showHomeScreen() {
+
+            document.getElementById("home-avatar").textContent =
+                currentProfile.avatar;
+
+            document.getElementById("home-username").textContent =
+                currentProfile.username;
+
+            showScreen(homeScreen);
+            showStatus("Ready to play!", "#4ade80");
+        }
+
 
         // Update avatar preview
         avatarInput.addEventListener("change", () => {
             avatarPreview.textContent = avatarInput.value;
         });
 
-        // Sign in anonymously
-        onAuthStateChanged(auth, (user) => {
 
-            if (user) {
-                currentUser = user;
-
-                status.textContent = "Connected! Choose your player details.";
-                status.style.color = "#4ade80";
-
-                submitButton.disabled = false;
-            }
-
-        });
-
-        signInAnonymously(auth).catch((error) => {
-
-            console.error(error);
-
-            status.textContent = "Authentication error: " + error.message;
-            status.style.color = "#f87171";
-
-        });
-
-        // Create player profile
-        form.addEventListener("submit", async (event) => {
+        // Create a new player profile
+        profileForm.addEventListener("submit", async (event) => {
 
             event.preventDefault();
-
-            if (!currentUser) {
-                status.textContent = "Please wait for Firebase to connect.";
-                return;
-            }
 
             const username = usernameInput.value.trim();
             const avatar = avatarInput.value;
 
             if (username.length < 3 || username.length > 16) {
-                status.textContent = "Username must be 3–16 characters.";
+                showStatus("Username must be 3–16 characters.", "#f87171");
                 return;
             }
 
-            submitButton.disabled = true;
-            status.textContent = "Creating your player profile...";
+            const button = document.getElementById("profile-button");
+            button.disabled = true;
 
             try {
 
+                const profile = {
+                    username: username,
+                    avatar: avatar,
+                    createdAt: Date.now()
+                };
+
                 await set(
                     ref(database, "players/" + currentUser.uid),
-                    {
-                        username: username,
-                        avatar: avatar,
-                        createdAt: Date.now()
-                    }
+                    profile
                 );
 
-                status.textContent = "Player profile created successfully!";
-                status.style.color = "#4ade80";
-
-                console.log("Player profile saved:", currentUser.uid);
+                currentProfile = profile;
+                showHomeScreen();
 
             } catch (error) {
 
                 console.error(error);
-
-                status.textContent = "Error saving profile: " + error.message;
-                status.style.color = "#f87171";
-
-                submitButton.disabled = false;
+                showStatus("Could not save profile: " + error.message, "#f87171");
 
             }
 
+            button.disabled = false;
         });
+
+
+        // Create a private room
+        createButton.addEventListener("click", async () => {
+
+            createButton.disabled = true;
+            showStatus("Creating your room...");
+
+            try {
+
+                const roomName =
+                    document.getElementById("room-name").value;
+
+                const roomCode = await createRoom(
+                    currentProfile,
+                    roomName
+                );
+
+                openRoom(roomCode);
+
+            } catch (error) {
+
+                console.error(error);
+                showStatus("Room creation failed: " + error.message, "#f87171");
+
+            }
+
+            createButton.disabled = false;
+        });
+
+
+        // Join an existing room
+        joinButton.addEventListener("click", async () => {
+
+            joinButton.disabled = true;
+            showStatus("Joining room...");
+
+            try {
+
+                const roomCode =
+                    document.getElementById("room-code-input").value;
+
+                const joinedCode = await joinRoom(
+                    roomCode,
+                    currentProfile
+                );
+
+                openRoom(joinedCode);
+
+            } catch (error) {
+
+                console.error(error);
+                showStatus("Could not join room: " + error.message, "#f87171");
+
+            }
+
+            joinButton.disabled = false;
+        });
+
+
+        // Open a room and listen for live changes
+        function openRoom(roomCode) {
+
+            currentRoomCode = roomCode;
+
+            document.getElementById("display-room-code").textContent =
+                roomCode;
+
+            showScreen(roomScreen);
+            showStatus("Connected to room!", "#4ade80");
+
+            if (stopListeningToRoom) {
+                stopListeningToRoom();
+            }
+
+            stopListeningToRoom = listenToRoom(
+                roomCode,
+                (roomData) => {
+
+                    if (!roomData) {
+                        showStatus("This room no longer exists.", "#f87171");
+                        return;
+                    }
+
+                    const info = roomData.info || {};
+                    const members = roomData.members || {};
+
+                    document.getElementById("room-title").textContent =
+                        info.roomName || "Game Night";
+
+                    const playerList =
+                        document.getElementById("player-list");
+
+                    playerList.replaceChildren();
+
+                    const players = Object.entries(members);
+
+                    document.getElementById("player-count").textContent =
+                        "(" + players.length + ")";
+
+                    players.forEach(([uid, player]) => {
+
+                        const playerRow = document.createElement("div");
+                        playerRow.className = "player";
+
+                        const avatar = document.createElement("span");
+                        avatar.className = "player-avatar";
+                        avatar.textContent = player.avatar || "🙂";
+
+                        const name = document.createElement("span");
+                        name.className = "player-name";
+                        name.textContent = player.username || "Player";
+
+                        const playerStatus = document.createElement("span");
+                        playerStatus.className = "player-status";
+
+                        if (uid === info.hostUid) {
+                            playerStatus.textContent = "HOST";
+                        } else if (player.ready) {
+                            playerStatus.textContent = "READY";
+                        } else {
+                            playerStatus.textContent = "JOINED";
+                        }
+
+                        playerRow.append(
+                            avatar,
+                            name,
+                            playerStatus
+                        );
+
+                        playerList.appendChild(playerRow);
+
+                    });
+
+                    const isHost = info.hostUid === currentUser.uid;
+
+                    document.getElementById("host-message").textContent =
+                        isHost
+                            ? "You are the room host."
+                            : "Waiting for the host to start the game.";
+
+                }
+            );
+        }
+
+
+        // Copy room code
+        document.getElementById("copy-code-button")
+            .addEventListener("click", async () => {
+
+                try {
+                    await navigator.clipboard.writeText(currentRoomCode);
+                    showStatus("Room code copied!", "#4ade80");
+                } catch (error) {
+                    showStatus("Copy failed. Please copy the code manually.", "#f87171");
+                }
+
+            });
+
+
+        // Return to the main menu
+        document.getElementById("leave-room-button")
+            .addEventListener("click", () => {
+
+                if (stopListeningToRoom) {
+                    stopListeningToRoom();
+                    stopListeningToRoom = null;
+                }
+
+                currentRoomCode = null;
+
+                showHomeScreen();
+
+            });
+
+
+        // Firebase authentication
+        
+// Firebase authentication
+onAuthStateChanged(auth, async (user) => {
+
+    if (!user) {
+        showStatus("Signing in...");
+
+        try {
+            await signInAnonymously(auth);
+        } catch (error) {
+            console.error(error);
+            showStatus("Authentication failed: " + error.message, "#f87171");
+        }
+
+        return;
+    }
+
+    currentUser = user;
+
+    try {
+        await loadPlayerProfile(user);
+    } catch (error) {
+        console.error(error);
+        showStatus("Could not load your profile: " + error.message, "#f87171");
+    }
+
+});
+
 
     </script>
 
