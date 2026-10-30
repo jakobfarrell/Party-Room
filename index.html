@@ -1,11 +1,17 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Party Room</title>
+
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             background: #111827;
             color: white;
@@ -15,71 +21,242 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            text-align: center;
+            padding: 20px;
         }
 
         .container {
             background: #1f2937;
             padding: 40px;
-            border-radius: 16px;
-            max-width: 500px;
-            width: 85%;
+            border-radius: 18px;
+            max-width: 460px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #374151;
         }
 
         h1 {
-            font-size: 36px;
-            margin-bottom: 10px;
+            font-size: 38px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #9ca3af;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #d1d5db;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid #4b5563;
+            background: #111827;
+            color: white;
+            font-size: 16px;
+            margin-bottom: 22px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #7c3aed;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #6d28d9;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         #status {
+            margin-top: 20px;
+            font-size: 14px;
             color: #fbbf24;
-            margin-top: 25px;
         }
 
-        #player-id {
-            color: #9ca3af;
-            font-size: 12px;
-            overflow-wrap: anywhere;
+        .avatar-preview {
+            font-size: 48px;
+            margin-bottom: 12px;
         }
     </style>
 </head>
+
 <body>
 
     <div class="container">
-        <h1>🎮 Party Room</h1>
-        <p>Our party starts here.</p>
 
-        <p id="status">Connecting to Firebase...</p>
-        <p id="player-id"></p>
+        <h1>🎮 Party Room</h1>
+
+        <p class="subtitle">
+            Your games. Your friends. Your party.
+        </p>
+
+        <div class="avatar-preview" id="avatar-preview">😎</div>
+
+        <form id="profile-form">
+
+            <label for="username">Choose your username</label>
+
+            <input
+                type="text"
+                id="username"
+                placeholder="Enter a username"
+                minlength="3"
+                maxlength="16"
+                required
+                autocomplete="off"
+            >
+
+            <label for="avatar">Choose your avatar</label>
+
+            <select id="avatar">
+                <option value="😎">😎 Cool</option>
+                <option value="👾">👾 Alien</option>
+                <option value="🤖">🤖 Robot</option>
+                <option value="🐸">🐸 Frog</option>
+                <option value="🦊">🦊 Fox</option>
+                <option value="🐼">🐼 Panda</option>
+                <option value="🐸">🐸 Frog</option>
+                <option value="👻">👻 Ghost</option>
+                <option value="🦄">🦄 Unicorn</option>
+                <option value="🐙">🐙 Octopus</option>
+                <option value="🦖">🦖 Dinosaur</option>
+                <option value="🐧">🐧 Penguin</option>
+                <option value="🐱">🐱 Cat</option>
+                <option value="🐶">🐶 Dog</option>
+                <option value="🍕">🍕 Pizza</option>
+                <option value="💀">💀 Skull</option>
+            </select>
+
+            <button type="submit" id="submit-button" disabled>
+                Create Player Profile
+            </button>
+
+        </form>
+
+        <p id="status">Connecting to Party Room...</p>
+
     </div>
 
     <script type="module">
-        import { auth } from "./js/firebase-config.js";
+
+        import { auth, database } from "./js/firebase-config.js";
 
         import {
             signInAnonymously,
             onAuthStateChanged
         } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
 
-        const status = document.getElementById("status");
-        const playerId = document.getElementById("player-id");
+        import {
+            ref,
+            set
+        } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
 
+        const form = document.getElementById("profile-form");
+        const usernameInput = document.getElementById("username");
+        const avatarInput = document.getElementById("avatar");
+        const avatarPreview = document.getElementById("avatar-preview");
+        const status = document.getElementById("status");
+        const submitButton = document.getElementById("submit-button");
+
+        let currentUser = null;
+
+        // Update avatar preview
+        avatarInput.addEventListener("change", () => {
+            avatarPreview.textContent = avatarInput.value;
+        });
+
+        // Sign in anonymously
         onAuthStateChanged(auth, (user) => {
+
             if (user) {
-                status.textContent = "Connected! Anonymous login successful.";
+                currentUser = user;
+
+                status.textContent = "Connected! Choose your player details.";
                 status.style.color = "#4ade80";
 
-                playerId.textContent = "Player ID: " + user.uid;
+                submitButton.disabled = false;
             }
+
         });
 
         signInAnonymously(auth).catch((error) => {
-            console.error("Firebase authentication error:", error);
 
-            status.textContent = "Connection error: " + error.message;
+            console.error(error);
+
+            status.textContent = "Authentication error: " + error.message;
             status.style.color = "#f87171";
+
         });
+
+        // Create player profile
+        form.addEventListener("submit", async (event) => {
+
+            event.preventDefault();
+
+            if (!currentUser) {
+                status.textContent = "Please wait for Firebase to connect.";
+                return;
+            }
+
+            const username = usernameInput.value.trim();
+            const avatar = avatarInput.value;
+
+            if (username.length < 3 || username.length > 16) {
+                status.textContent = "Username must be 3–16 characters.";
+                return;
+            }
+
+            submitButton.disabled = true;
+            status.textContent = "Creating your player profile...";
+
+            try {
+
+                await set(
+                    ref(database, "players/" + currentUser.uid),
+                    {
+                        username: username,
+                        avatar: avatar,
+                        createdAt: Date.now()
+                    }
+                );
+
+                status.textContent = "Player profile created successfully!";
+                status.style.color = "#4ade80";
+
+                console.log("Player profile saved:", currentUser.uid);
+
+            } catch (error) {
+
+                console.error(error);
+
+                status.textContent = "Error saving profile: " + error.message;
+                status.style.color = "#f87171";
+
+                submitButton.disabled = false;
+
+            }
+
+        });
+
     </script>
 
 </body>
 </html>
+
