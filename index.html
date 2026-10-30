@@ -367,9 +367,15 @@
 
             <p id="host-message" class="subtitle"></p>
 
-            <button id="leave-room-button" class="secondary-button full-button">
-                Return to Main Menu
-            </button>
+            <div style="text-align:center; margin: 20px 0;">
+                <button id="ready-button" class="full-button">
+                    Mark Ready
+                </button>
+            </div>
+
+<button id="leave-room-button" class="secondary-button full-button">
+    Return to Main Menu
+</button>
 
         </section>
 
@@ -389,7 +395,8 @@
         import {
             ref,
             get,
-            set
+            set,
+            update
         } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
 
         import {
@@ -413,6 +420,7 @@
 
         const createButton = document.getElementById("create-room-button");
         const joinButton = document.getElementById("join-room-button");
+        const readyButton = document.getElementById("ready-button");
         const editProfileButton = document.getElementById("edit-profile-button");
         const editProfilePanel = document.getElementById("edit-profile-panel");
         const editProfileForm = document.getElementById("edit-profile-form");
@@ -425,6 +433,7 @@
         let currentProfile = null;
         let currentRoomCode = null;
         let stopListeningToRoom = null;
+        let currentPlayerReady = false;
 
 
         // Display one screen at a time
@@ -688,6 +697,12 @@ editProfileForm.addEventListener("submit", async (event) => {
 
                     const info = roomData.info || {};
                     const members = roomData.members || {};
+                    currentPlayerReady =
+                        members[currentUser.uid]?.ready === true;
+                    
+                    readyButton.textContent = currentPlayerReady
+                        ? "Set Not Ready"
+                        : "Mark Ready";
 
                     document.getElementById("room-title").textContent =
                         info.roomName || "Game Night";
@@ -719,11 +734,13 @@ editProfileForm.addEventListener("submit", async (event) => {
                         playerStatus.className = "player-status";
 
                         if (uid === info.hostUid) {
-                            playerStatus.textContent = "HOST";
+                            playerStatus.textContent = player.ready
+                                ? "HOST · READY"
+                                : "HOST · NOT READY";
                         } else if (player.ready) {
                             playerStatus.textContent = "READY";
                         } else {
-                            playerStatus.textContent = "JOINED";
+                            playerStatus.textContent = "NOT READY";
                         }
 
                         playerRow.append(
@@ -747,7 +764,57 @@ editProfileForm.addEventListener("submit", async (event) => {
             );
         }
 
+        // Update the ready button whenever room information changes
+readyButton.textContent = currentPlayerReady
+    ? "Set Not Ready"
+    : "Mark Ready";
 
+
+// Toggle the player's ready status
+readyButton.addEventListener("click", async () => {
+
+    if (!currentRoomCode || !currentUser) {
+        return;
+    }
+
+    const newReadyState = !currentPlayerReady;
+
+    readyButton.disabled = true;
+
+    try {
+
+        await update(
+            ref(
+                database,
+                "rooms/" + currentRoomCode +
+                "/members/" + currentUser.uid
+            ),
+            {
+                ready: newReadyState
+            }
+        );
+
+        showStatus(
+            newReadyState
+                ? "You are ready!"
+                : "You are no longer ready.",
+            "#4ade80"
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        showStatus(
+            "Could not update ready status: " + error.message,
+            "#f87171"
+        );
+
+    }
+
+    readyButton.disabled = false;
+
+});
         // Copy room code
         document.getElementById("copy-code-button")
             .addEventListener("click", async () => {
