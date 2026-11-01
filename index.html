@@ -407,6 +407,32 @@
 
         </section>
 
+        <!-- GAME SCREEN -->
+        <section id="game-screen" class="hidden">
+        
+            <h2 id="active-game-title">Game</h2>
+        
+            <p class="subtitle" id="active-game-description">
+                Get ready to play!
+            </p>
+        
+            <div class="section">
+                <h2>Game in Progress</h2>
+        
+                <div id="game-content">
+                    <p class="subtitle">
+                        The game will appear here.
+                    </p>
+                </div>
+            </div>
+        
+            <div class="section">
+                <h2>Players</h2>
+                <div id="game-player-list"></div>
+            </div>
+        
+        </section>
+        
         <p id="status">Connecting to Party Room...</p>
 
     </main>
@@ -444,6 +470,7 @@
         const profileScreen = document.getElementById("profile-screen");
         const homeScreen = document.getElementById("home-screen");
         const roomScreen = document.getElementById("room-screen");
+        const gameScreen = document.getElementById("game-screen");
 
         const status = document.getElementById("status");
 
@@ -459,6 +486,10 @@
         const startGameMessage = document.getElementById("start-game-message");
         const gameSelect = document.getElementById("game-select");
         const gameSelectionMessage = document.getElementById("game-selection-message");
+        const activeGameTitle = document.getElementById("active-game-title");
+        const activeGameDescription = document.getElementById("active-game-description");
+        const gameContent = document.getElementById("game-content");
+        const gamePlayerList = document.getElementById("game-player-list");
         const editProfileButton = document.getElementById("edit-profile-button");
         const editProfilePanel = document.getElementById("edit-profile-panel");
         const editProfileForm = document.getElementById("edit-profile-form");
@@ -483,7 +514,8 @@
             profileScreen.classList.add("hidden");
             homeScreen.classList.add("hidden");
             roomScreen.classList.add("hidden");
-
+            gameScreen.classList.add("hidden");
+        
             screen.classList.remove("hidden");
         }
 
