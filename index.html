@@ -41,6 +41,9 @@
         h2 {
             margin-top: 0;
         }
+        #room-title {
+            text-align: center;
+        }
 
         .subtitle {
             color: #9ca3af;
@@ -680,7 +683,15 @@ editProfileForm.addEventListener("submit", async (event) => {
             } catch (error) {
 
                 console.error(error);
-                showStatus("Could not join room: " + error.message, "#f87171");
+
+                    if (
+                        error.code === "PERMISSION_DENIED" ||
+                        /permission_denied|permission denied/i.test(error.message || "")
+                    ) {
+                        showStatus("Permission Denied", "#f87171");
+                    } else {
+                        showStatus("Could not join room: " + error.message, "#f87171");
+                    }
 
             }
 
