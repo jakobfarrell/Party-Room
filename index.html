@@ -415,6 +415,7 @@
         import {
             createRoom,
             joinRoom,
+            leaveRoom,
             listenToRoom
         } from "./js/room-manager.js";
 
@@ -449,6 +450,7 @@
         let currentRoomCode = null;
         let stopListeningToRoom = null;
         let currentPlayerReady = false;
+        let isLeavingRoom = false;
 
 
         // Display one screen at a time
@@ -709,8 +711,45 @@ editProfileForm.addEventListener("submit", async (event) => {
                         showStatus("This room no longer exists.", "#f87171");
                         return;
                     }
-
+                    
                     const info = roomData.info || {};
+                    
+                    // Check whether the host has closed the room.
+                    if (info.closed === true) {
+                    
+                        // Avoid processing the closure twice.
+                        if (isLeavingRoom) {
+                            return;
+                        }
+                    
+                        isLeavingRoom = true;
+                    
+                        const closedRoomCode = roomCode;
+                    
+                        // Stop listening for changes to the closed room.
+                        if (stopListeningToRoom) {
+                            stopListeningToRoom();
+                            stopListeningToRoom = null;
+                        }
+                    
+                        // Clean up this player's membership and room lock.
+                        (async () => {
+                            try {
+                                await leaveRoom(closedRoomCode);
+                            } catch (error) {
+                                console.error("Room closure cleanup failed:", error);
+                            }
+                    
+                            currentRoomCode = null;
+                            showHomeScreen();
+                            showStatus("The host closed the room.", "#f87171");
+                    
+                            isLeavingRoom = false;
+                        })();
+                    
+                        return;
+                    }
+                    
                     const members = roomData.members || {};
                     currentPlayerReady =
                         members[currentUser.uid]?.ready === true;
@@ -932,19 +971,50 @@ startGameButton.addEventListener("click", async () => {
             });
 
 
-        // Return to the main menu
+      
+        // Return to the main menu and leave the current room.
         document.getElementById("leave-room-button")
-            .addEventListener("click", () => {
-
-                if (stopListeningToRoom) {
-                    stopListeningToRoom();
-                    stopListeningToRoom = null;
+            .addEventListener("click", async () => {
+        
+                if (!currentRoomCode || isLeavingRoom) {
+                    return;
                 }
-
-                currentRoomCode = null;
-
-                showHomeScreen();
-
+        
+                isLeavingRoom = true;
+        
+                const roomCodeToLeave = currentRoomCode;
+                const leaveButton = document.getElementById("leave-room-button");
+        
+                leaveButton.disabled = true;
+                showStatus("Leaving room...");
+        
+                try {
+                    // Remove membership and release the player's room lock.
+                    await leaveRoom(roomCodeToLeave);
+        
+                    // Stop listening to the room.
+                    if (stopListeningToRoom) {
+                        stopListeningToRoom();
+                        stopListeningToRoom = null;
+                    }
+        
+                    currentRoomCode = null;
+        
+                    showHomeScreen();
+        
+                } catch (error) {
+                    console.error("Could not leave room:", error);
+        
+                    showStatus(
+                        "Could not leave room: " + error.message,
+                        "#f87171"
+                    );
+        
+                } finally {
+                    isLeavingRoom = false;
+                    leaveButton.disabled = false;
+                }
+        
             });
 
 
