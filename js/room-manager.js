@@ -101,6 +101,9 @@ async function registerRoomPresence(roomCode, isHost) {
 
 // Cancel pending disconnect actions before deliberately leaving.
 // This prevents an old room's disconnect cleanup from affecting a new room.
+
+// Cancel pending disconnect actions before deliberately leaving.
+// This prevents an old room's disconnect cleanup from affecting a new room.
 async function cancelRoomPresence(roomCode) {
     const user = auth.currentUser;
 
@@ -118,27 +121,12 @@ async function cancelRoomPresence(roomCode) {
         `playerRooms/${user.uid}`
     );
 
-    const operations = [
+    await Promise.all([
         onDisconnect(memberRef).cancel(),
         onDisconnect(playerRoomRef).cancel()
-    ];
-
-    // Also cancel the scheduled room closure for the host.
-    const closedRef = ref(
-        database,
-        `rooms/${roomCode}/info/closed`
-    );
-
-    const closedAtRef = ref(
-        database,
-        `rooms/${roomCode}/info/closedAt`
-    );
-
-    operations.push(onDisconnect(closedRef).cancel());
-    operations.push(onDisconnect(closedAtRef).cancel());
-
-    await Promise.all(operations);
+    ]);
 }
+
 
 // Create a new private room.
 export async function createRoom(profile, roomName = "Game Night") {
