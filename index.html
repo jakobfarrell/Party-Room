@@ -473,6 +473,9 @@
         let stopListeningToRoom = null;
         let currentPlayerReady = false;
         let isLeavingRoom = false;
+        
+        let currentRoomIsHost = false;
+        let currentAvailableGameIds = [];
 
 
         // Display one screen at a time
@@ -838,6 +841,70 @@ editProfileForm.addEventListener("submit", async (event) => {
                     });
 
                     const isHost = info.hostUid === currentUser.uid;
+                    // Determine which games support the current player count.
+                    const availableGames = getAvailableGames(players.length);
+                    
+                    currentRoomIsHost = isHost;
+                    currentAvailableGameIds = availableGames.map(game => game.id);
+                    
+                    // Rebuild the game dropdown.
+                    gameSelect.replaceChildren();
+                    
+                    const placeholder = document.createElement("option");
+                    placeholder.value = "";
+                    placeholder.textContent = players.length < 2
+                        ? "At least 2 players required"
+                        : "Choose a game";
+                    
+                    gameSelect.appendChild(placeholder);
+                    
+                    // Add all games available for this player count.
+                    availableGames.forEach(game => {
+                        const option = document.createElement("option");
+                        option.value = game.id;
+                        option.textContent = game.name;
+                        gameSelect.appendChild(option);
+                    });
+                    
+                    // Get the currently selected game.
+                    const selectedGame = getGameById(info.selectedGameId);
+                    
+                    // Keep showing a previously selected game if it is no longer
+                    // available because the player count has changed.
+                    if (
+                        selectedGame &&
+                        !currentAvailableGameIds.includes(selectedGame.id)
+                    ) {
+                        const unavailableOption = document.createElement("option");
+                        unavailableOption.value = selectedGame.id;
+                        unavailableOption.textContent =
+                            selectedGame.name + " (unavailable with current players)";
+                        unavailableOption.disabled = true;
+                        gameSelect.appendChild(unavailableOption);
+                    }
+                    
+                    // Display the selection to everyone in the room.
+                    gameSelect.value = info.selectedGameId || "";
+                    
+                    // Only the host can change the selection.
+                    gameSelect.disabled =
+                        !isHost ||
+                        availableGames.length === 0 ||
+                        info.gameStarted === true;
+                    
+                    if (selectedGame) {
+                        gameSelectionMessage.textContent =
+                            "Selected game: " + selectedGame.name;
+                    } else if (!isHost) {
+                        gameSelectionMessage.textContent =
+                            "Waiting for the host to select a game.";
+                    } else if (availableGames.length === 0) {
+                        gameSelectionMessage.textContent =
+                            "At least 2 players are needed to select a game.";
+                    } else {
+                        gameSelectionMessage.textContent =
+                            "Choose a game for everyone to play.";
+                    }
                     // Check whether everyone is ready.
                     const allPlayersReady =
                         players.length >= 2 &&
@@ -987,6 +1054,55 @@ startGameButton.addEventListener("click", async () => {
     }
 
 });
+        // Save the host's selected game to Firebase.
+        gameSelect.addEventListener("change", async () => {
+        
+            if (!currentRoomCode || !currentRoomIsHost) {
+                return;
+            }
+        
+            const selectedGameId = gameSelect.value;
+        
+            // Make sure the selected game is valid for this player count.
+            if (
+                selectedGameId &&
+                !currentAvailableGameIds.includes(selectedGameId)
+            ) {
+                showStatus("That game is not available.", "#f87171");
+                return;
+            }
+        
+            try {
+        
+                await update(
+                    ref(
+                        database,
+                        "rooms/" + currentRoomCode + "/info"
+                    ),
+                    {
+                        selectedGameId: selectedGameId || null
+                    }
+                );
+        
+                showStatus(
+                    selectedGameId
+                        ? "Game selection updated!"
+                        : "Game selection cleared.",
+                    "#4ade80"
+                );
+        
+            } catch (error) {
+        
+                console.error(error);
+        
+                showStatus(
+                    "Could not save game selection: " + error.message,
+                    "#f87171"
+                );
+        
+            }
+        
+        });
         // Copy room code
         document.getElementById("copy-code-button")
             .addEventListener("click", async () => {
