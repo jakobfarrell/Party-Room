@@ -433,6 +433,11 @@
             leaveRoom,
             listenToRoom
         } from "./js/room-manager.js";
+        import {
+            GAMES,
+            getAvailableGames,
+            getGameById
+        } from "./js/game-manager.js";
 
 
         // HTML elements
@@ -452,6 +457,8 @@
         const readyButton = document.getElementById("ready-button");
         const startGameButton = document.getElementById("start-game-button");
         const startGameMessage = document.getElementById("start-game-message");
+        const gameSelect = document.getElementById("game-select");
+        const gameSelectionMessage = document.getElementById("game-selection-message");
         const editProfileButton = document.getElementById("edit-profile-button");
         const editProfilePanel = document.getElementById("edit-profile-panel");
         const editProfileForm = document.getElementById("edit-profile-form");
