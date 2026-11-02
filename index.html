@@ -821,6 +821,15 @@
             nextMostLikelyToRound,
             endMostLikelyToGame
         } from "./js/most-likely-to.js";
+        import {
+            startTrivia,
+            listenToTrivia,
+            submitTriviaAnswer,
+            finishTriviaQuestion,
+            nextTriviaQuestion,
+            endTriviaGame,
+            TRIVIA_QUESTIONS
+        } from "./js/trivia.js";
 
 
         // HTML elements
@@ -873,6 +882,15 @@
         let mostLikelyTimerInterval = null;
         let mostLikelyTimeout = null;
         let mostLikelyTimerRoundKey = null;
+        // Trivia game listener and data
+        let stopListeningToTrivia = null;
+        let currentTriviaRoomCode = null;
+        let currentTriviaData = null;
+        
+        // Trivia question timer
+        let triviaTimerInterval = null;
+        let triviaTimeout = null;
+        let triviaTimerRoundKey = null;
 
 
         // Display one screen at a time
