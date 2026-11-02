@@ -2266,6 +2266,52 @@ editProfileForm.addEventListener("submit", async (event) => {
                             
                                 currentMostLikelyToRoomCode = null;
                             }
+
+                        
+                            // Connect the live Trivia game data.
+                            if (info.selectedGameId === "trivia") {
+
+                                // Only create one listener for this room.
+                                if (
+                                    currentTriviaRoomCode !== roomCode ||
+                                    !stopListeningToTrivia
+                                ) {
+
+                                    // Stop any previous Trivia listener.
+                                    if (stopListeningToTrivia) {
+                                        stopListeningToTrivia();
+                                    }
+
+                                    currentTriviaRoomCode = roomCode;
+
+                                    stopListeningToTrivia = listenToTrivia(
+                                        roomCode,
+                                        (gameData) => {
+
+                                            currentTriviaData = gameData;
+
+                                            renderTrivia(
+                                                gameData,
+                                                currentRoomMembers
+                                            );
+
+                                        }
+                                    );
+                                }
+
+                            } else {
+
+                                // Stop the listener if this is another game.
+                                if (stopListeningToTrivia) {
+                                    stopListeningToTrivia();
+                                    stopListeningToTrivia = null;
+                                }
+
+                                currentTriviaRoomCode = null;
+                                currentTriviaData = null;
+                                clearTriviaTimers();
+                            }
+
                             
                             // Show the game screen.
                             showScreen(gameScreen);
