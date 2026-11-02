@@ -309,6 +309,238 @@
                     grid-template-columns: 1fr 1fr;
                 }
             }
+        
+/* ==========================================
+   MOST LIKELY TO — GAME SHOW THEME
+========================================== */
+
+/* Overall game screen */
+#game-screen {
+    animation: mlt-enter 0.5s ease-out;
+}
+
+#game-screen > h2 {
+    text-align: center;
+    font-size: 28px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #d8b4fe;
+}
+
+#game-screen > .subtitle {
+    color: #c4b5fd;
+}
+
+/* Main game area */
+#game-screen > .section:first-of-type {
+    background:
+        radial-gradient(ellipse at top, #3b0764 0%, #1e1035 45%, #100b1d 100%);
+    border: 1px solid #7e22ce;
+    border-radius: 20px;
+    padding: 12px;
+    box-shadow:
+        0 0 25px rgba(147, 51, 234, 0.18),
+        inset 0 0 30px rgba(168, 85, 247, 0.06);
+}
+
+#game-screen > .section:first-of-type > h2 {
+    display: none;
+}
+
+/* Game content */
+.mlt-game {
+    max-width: 760px;
+    padding: 35px 24px;
+    margin: 0 auto;
+    text-align: center;
+    animation: mlt-enter 0.45s ease-out;
+}
+
+.mlt-round {
+    display: inline-block;
+    padding: 9px 18px;
+    margin-bottom: 25px;
+    border: 1px solid #c084fc;
+    border-radius: 30px;
+    background: rgba(168, 85, 247, 0.15);
+    color: #e9d5ff;
+    font-size: 12px;
+    letter-spacing: 3px;
+    font-weight: 800;
+}
+
+.mlt-prompt {
+    max-width: 650px;
+    margin: 20px auto 28px;
+    font-size: clamp(28px, 5vw, 46px);
+    line-height: 1.2;
+    font-weight: 900;
+    letter-spacing: -1px;
+    color: #ffffff;
+    text-shadow: 0 3px 25px rgba(216, 180, 254, 0.25);
+}
+
+.mlt-subtitle {
+    color: #d8b4fe;
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 18px 0 25px;
+}
+
+/* Player voting cards */
+.mlt-player-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin: 32px auto;
+}
+
+.mlt-player-button {
+    min-height: 75px;
+    padding: 18px;
+    border: 1px solid #6b21a8;
+    border-radius: 14px;
+    background: linear-gradient(145deg, #3b0764, #25113c);
+    color: #f3e8ff;
+    font-size: 17px;
+    font-weight: 800;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.mlt-player-button:hover {
+    transform: translateY(-4px);
+    border-color: #e879f9;
+    background: linear-gradient(145deg, #701a75, #4c1d95);
+    box-shadow: 0 8px 25px rgba(192, 132, 252, 0.25);
+}
+
+.mlt-player-button:disabled {
+    transform: none;
+    opacity: 0.6;
+}
+
+/* Countdown */
+.mlt-countdown {
+    display: inline-block;
+    margin: 12px auto 20px;
+    padding: 10px 20px;
+    border: 1px solid #a855f7;
+    border-radius: 30px;
+    background: rgba(126, 34, 206, 0.2);
+    color: #e9d5ff;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+/* Results and leaderboard */
+.mlt-results,
+.mlt-leaderboard {
+    max-width: 540px;
+    margin: 28px auto;
+    text-align: left;
+}
+
+.mlt-result-row {
+    padding: 17px 19px;
+    margin-bottom: 10px;
+    border: 1px solid #582c80;
+    border-radius: 12px;
+    background: linear-gradient(110deg, #32134d, #21132f);
+    color: #f3e8ff;
+    transition: transform 0.2s;
+}
+
+.mlt-result-row strong {
+    color: #e879f9;
+    font-size: 16px;
+}
+
+/* Host controls */
+.mlt-host-button {
+    display: block;
+    width: 100%;
+    max-width: 320px;
+    margin: 32px auto 0;
+    padding: 17px 22px;
+    border-radius: 12px;
+    background: linear-gradient(110deg, #9333ea, #c026d3);
+    color: white;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    box-shadow: 0 5px 25px rgba(168, 85, 247, 0.3);
+}
+
+.mlt-host-button:hover {
+    background: linear-gradient(110deg, #a855f7, #d946ef);
+    transform: translateY(-2px);
+}
+
+/* End game */
+.mlt-end-button {
+    display: block;
+    width: 100%;
+    max-width: 280px;
+    margin: 35px auto 5px;
+    padding: 13px 20px;
+    border: 1px solid #be123c;
+    border-radius: 10px;
+    background: rgba(159, 18, 57, 0.15);
+    color: #fda4af;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.mlt-end-button:hover {
+    background: #9f1239;
+    color: white;
+}
+
+/* Other game screen elements */
+#game-screen > .section:last-of-type {
+    background: #171025;
+    border: 1px solid #43245e;
+    border-radius: 14px;
+}
+
+#game-screen > .section:last-of-type h2 {
+    color: #d8b4fe;
+}
+
+/* Entrance animation */
+@keyframes mlt-enter {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile adjustments */
+@media (max-width: 500px) {
+    .mlt-game {
+        padding: 25px 8px;
+    }
+
+    .mlt-player-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+    }
+
+    .mlt-player-button {
+        padding: 14px 8px;
+        font-size: 14px;
+    }
+
+    .mlt-prompt {
+        font-size: 29px;
+    }
+}
+
     </style>
 </head>
 
