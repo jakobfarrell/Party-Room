@@ -182,7 +182,9 @@ export function listenToTrivia(roomCode, callback) {
 }
 
 // Submit a player's answer.
+
 export async function submitTriviaAnswer(roomCode, answerIndex) {
+
     const user = auth.currentUser;
 
     if (!user) {
@@ -224,18 +226,28 @@ export async function submitTriviaAnswer(roomCode, answerIndex) {
         `rooms/${roomCode}/trivia/answers/${user.uid}`
     );
 
-    const existingAnswer = await get(answerRef);
+    // Create the answer only if this player hasn't already answered.
+    const transactionResult = await runTransaction(
+        answerRef,
+        currentAnswer => {
 
-    if (existingAnswer.exists()) {
+            if (currentAnswer !== null) {
+                return;
+            }
+
+            return {
+                answerIndex: answerIndex,
+                submittedAt: Date.now(),
+                round: state.round
+            };
+        }
+    );
+
+    if (!transactionResult.committed) {
         throw new Error("You have already answered this question.");
     }
-
-    await set(answerRef, {
-        answerIndex: answerIndex,
-        submittedAt: Date.now(),
-        round: state.round
-    });
 }
+
 
 // End the current question and award points.
 export async function finishTriviaQuestion(roomCode) {
