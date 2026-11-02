@@ -3476,9 +3476,9 @@ if (info.selectedGameId === "would-you-rather") {
 
         stopListeningToWouldYouRather = listenToWouldYouRather(
             roomCode,
+            currentRoomIsHost,
             (gameData) => {
-
-                currentWouldYouRatherData = gameData;
+             currentWouldYouRatherData = gameData;
 
                 renderWouldYouRather(
                     gameData,
