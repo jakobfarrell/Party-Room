@@ -1484,6 +1484,15 @@ function renderTrivia(gameData, members) {
             return;
         }
 
+        const elapsed = Date.now() - state.questionStartedAt;
+
+        const remaining = Math.max(
+            0,
+            state.questionDuration - elapsed
+        );
+        
+        const secondsRemaining = Math.ceil(remaining / 1000);
+
         let questionHTML = `
             <div class="trivia-game">
 
@@ -1496,7 +1505,7 @@ function renderTrivia(gameData, members) {
                 </h2>
 
                 <p id="trivia-countdown" class="trivia-countdown">
-                    20 seconds remaining
+                    ${secondsRemaining} ${secondsRemaining === 1 ? "second" : "seconds"} remaining
                 </p>
         `;
 
