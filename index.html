@@ -586,7 +586,8 @@
             listenToMostLikelyTo,
             submitMostLikelyToVote,
             finishMostLikelyToRound,
-            nextMostLikelyToRound
+            nextMostLikelyToRound,
+            endMostLikelyToGame
         } from "./js/most-likely-to.js";
 
 
@@ -636,6 +637,10 @@
         let currentMostLikelyToRoomCode = null;
         let currentMostLikelyToData = null;
         let currentRoomMembers = {};
+        // Most Likely To voting timer
+        let mostLikelyTimerInterval = null;
+        let mostLikelyTimeout = null;
+        let mostLikelyTimerRoundKey = null;
 
 
         // Display one screen at a time
@@ -664,6 +669,113 @@ function getPlayerName(member) {
         member.name ||
         "Player";
 }
+        function clearMostLikelyVotingTimers() {
+
+    if (mostLikelyTimerInterval) {
+        clearInterval(mostLikelyTimerInterval);
+        mostLikelyTimerInterval = null;
+    }
+
+    if (mostLikelyTimeout) {
+        clearTimeout(mostLikelyTimeout);
+        mostLikelyTimeout = null;
+    }
+
+    mostLikelyTimerRoundKey = null;
+}
+
+function startMostLikelyVotingTimer(state) {
+
+    const roundKey =
+        currentRoomCode + ":" + state.round + ":" + state.startedAt;
+
+    // Don't restart the timer every time someone votes.
+    if (mostLikelyTimerRoundKey === roundKey) {
+        return;
+    }
+
+    clearMostLikelyVotingTimers();
+    mostLikelyTimerRoundKey = roundKey;
+
+    const updateCountdown = () => {
+
+        const elapsed = Date.now() - state.startedAt;
+        const remaining = Math.max(0, 30000 - elapsed);
+        const seconds = Math.ceil(remaining / 1000);
+
+        const countdownElement =
+            document.getElementById("mlt-countdown");
+
+        if (countdownElement) {
+            countdownElement.textContent =
+                seconds + (seconds === 1 ? " second remaining" : " seconds remaining");
+        }
+    };
+
+    updateCountdown();
+
+    mostLikelyTimerInterval = setInterval(updateCountdown, 250);
+
+    // Only the host triggers the automatic timeout.
+    if (currentRoomIsHost) {
+
+        const remaining = Math.max(
+            0,
+            30000 - (Date.now() - state.startedAt)
+        );
+
+        mostLikelyTimeout = setTimeout(async () => {
+
+            try {
+                await finishMostLikelyToRound(currentRoomCode);
+            } catch (error) {
+                console.error("Automatic round completion failed:", error);
+            }
+
+        }, remaining);
+    }
+}
+
+        function addEndGameButton() {
+
+            // Only the host gets this button.
+            if (!currentRoomIsHost) {
+                return;
+            }
+        
+            const button = document.createElement("button");
+        
+            button.id = "mlt-end-game";
+            button.className = "mlt-end-button";
+            button.textContent = "End Game";
+        
+            button.addEventListener("click", async () => {
+        
+                if (!confirm("End this game and return everyone to the room?")) {
+                    return;
+                }
+        
+                button.disabled = true;
+                button.textContent = "Ending game...";
+        
+                try {
+        
+                    clearMostLikelyVotingTimers();
+        
+                    await endMostLikelyToGame(currentRoomCode);
+        
+                } catch (error) {
+        
+                    console.error(error);
+                    showStatus(error.message, "#f87171");
+        
+                    button.disabled = false;
+                    button.textContent = "End Game";
+                }
+            });
+        
+            gameContent.appendChild(button);
+        }
 
 function renderMostLikelyTo(gameData, members) {
 
@@ -678,6 +790,26 @@ function renderMostLikelyTo(gameData, members) {
 
     const playerEntries = Object.entries(members || {});
     const myVote = gameData.votes?.[currentUser.uid];
+    
+    // Start or maintain the 30-second voting timer.
+    if (state.status === "voting") {
+        startMostLikelyVotingTimer(state);
+    } else {
+        clearMostLikelyVotingTimers();
+    }
+    
+    // Check whether every current player has voted.
+    const allPlayersVoted =
+        playerEntries.length > 0 &&
+        playerEntries.every(([uid]) => Boolean(gameData.votes?.[uid]));
+    
+    // Reveal results immediately when everyone has voted.
+    if (currentRoomIsHost && state.status === "voting" && allPlayersVoted) {
+    
+        finishMostLikelyToRound(currentRoomCode).catch(error => {
+            console.error("Automatic round completion failed:", error);
+        });
+    }
 
     // Voting phase
     if (state.status === "voting") {
@@ -705,6 +837,10 @@ function renderMostLikelyTo(gameData, members) {
                 <p class="mlt-subtitle">
                     Choose the player you think fits this prompt best.
                 </p>
+                
+                <p id="mlt-countdown" class="mlt-countdown">
+                    30 seconds remaining
+                </p>
 
                 <div class="mlt-player-grid">
             `;
@@ -726,17 +862,11 @@ function renderMostLikelyTo(gameData, members) {
             votingHTML += `</div>`;
         }
 
-        if (currentRoomIsHost) {
-            votingHTML += `
-                <button id="mlt-finish-button" class="mlt-host-button">
-                    Reveal Results
-                </button>
-            `;
-        }
 
         votingHTML += `</div>`;
 
         gameContent.innerHTML = votingHTML;
+        addEndGameButton();
 
         // Voting buttons
         document.querySelectorAll(".mlt-player-button").forEach(button => {
@@ -768,35 +898,7 @@ function renderMostLikelyTo(gameData, members) {
             });
         });
 
-        // Host reveals results
-        const finishButton = document.getElementById(
-            "mlt-finish-button"
-        );
-
-        if (finishButton) {
-
-            finishButton.addEventListener("click", async () => {
-
-                finishButton.disabled = true;
-                finishButton.textContent = "Calculating...";
-
-                try {
-
-                    await finishMostLikelyToRound(currentRoomCode);
-
-                } catch (error) {
-
-                    console.error(error);
-                    showStatus(error.message, "#f87171");
-
-                    finishButton.disabled = false;
-                    finishButton.textContent = "Reveal Results";
-                }
-            });
-        }
-
-        return;
-    }
+     
 
     // Results phase
     if (state.status === "results") {
@@ -891,6 +993,7 @@ function renderMostLikelyTo(gameData, members) {
         resultsHTML += `</div>`;
 
         gameContent.innerHTML = resultsHTML;
+        addEndGameButton();
 
         const nextButton = document.getElementById("mlt-next-button");
 
@@ -953,6 +1056,7 @@ function renderMostLikelyTo(gameData, members) {
         completeHTML += `</div></div>`;
 
         gameContent.innerHTML = completeHTML;
+        addEndGameButton();
     }
 }
 
@@ -1461,7 +1565,25 @@ editProfileForm.addEventListener("submit", async (event) => {
                             
                             // Show the game screen.
                             showScreen(gameScreen);
-                            }
+                            } else {
+
+    // Return everyone to the room lobby when the host ends the game.
+    if (stopListeningToMostLikelyTo) {
+        stopListeningToMostLikelyTo();
+        stopListeningToMostLikelyTo = null;
+    }
+
+    currentMostLikelyToRoomCode = null;
+    currentMostLikelyToData = null;
+
+    clearMostLikelyVotingTimers();
+
+    gameContent.innerHTML = `
+        <p class="subtitle">The game will appear here.</p>
+    `;
+
+    showScreen(roomScreen);
+}
                     
                     // Only the host can start the game, and only when everyone is ready.
                     startGameButton.disabled =
