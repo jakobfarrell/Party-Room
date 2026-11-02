@@ -2328,6 +2328,19 @@ editProfileForm.addEventListener("submit", async (event) => {
 
     clearMostLikelyVotingTimers();
 
+                        
+    // Stop the Trivia listener and clean up its data.
+    if (stopListeningToTrivia) {
+        stopListeningToTrivia();
+        stopListeningToTrivia = null;
+    }
+
+    currentTriviaRoomCode = null;
+    currentTriviaData = null;
+
+    clearTriviaTimers();
+
+
     gameContent.innerHTML = `
         <p class="subtitle">The game will appear here.</p>
     `;
