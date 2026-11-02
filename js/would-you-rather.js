@@ -211,14 +211,61 @@ export async function startWouldYouRather(roomCode, members) {
     );
 }
 
-// Listen for live game updates.
-export function listenToWouldYouRather(roomCode, callback) {
-    return onValue(
-        getWouldYouRatherRef(roomCode),
-        snapshot => {
-            callback(snapshot.val() || {});
-        }
+export function listenToWouldYouRather(roomCode, isHost, callback) {
+
+    const user = auth.currentUser;
+
+    if (!user) {
+        throw new Error("You must be signed in.");
+    }
+
+    const stateRef = ref(
+        database,
+        `rooms/${roomCode}/wouldYouRather/state`
     );
+
+    const votesRef = ref(
+        database,
+        isHost
+            ? `rooms/${roomCode}/wouldYouRather/votes`
+            : `rooms/${roomCode}/wouldYouRather/votes/${user.uid}`
+    );
+
+    let latestState = null;
+    let latestVotes = {};
+
+    const stopStateListener = onValue(stateRef, snapshot => {
+
+        latestState = snapshot.val();
+
+        callback({
+            state: latestState,
+            votes: latestVotes
+        });
+    });
+
+    const stopVotesListener = onValue(votesRef, snapshot => {
+
+        if (isHost) {
+            latestVotes = snapshot.val() || {};
+        } else {
+            const ownVote = snapshot.val();
+
+            latestVotes = ownVote
+                ? { [user.uid]: ownVote }
+                : {};
+        }
+
+        callback({
+            state: latestState,
+            votes: latestVotes
+        });
+    });
+
+    return () => {
+        stopStateListener();
+        stopVotesListener();
+    };
 }
 
 // Submit a player's prediction.
