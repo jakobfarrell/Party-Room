@@ -2476,6 +2476,7 @@ startGameButton.addEventListener("click", async () => {
 
         // Initialize Most Likely To before moving everyone
         // to the game screen.
+        
         if (selectedGameId === "most-likely-to") {
 
             const membersSnapshot = await get(
@@ -2485,7 +2486,18 @@ startGameButton.addEventListener("click", async () => {
             const members = membersSnapshot.val() || {};
 
             await startMostLikelyTo(currentRoomCode, members);
+
+        } else if (selectedGameId === "trivia") {
+
+            const membersSnapshot = await get(
+                ref(database, "rooms/" + currentRoomCode + "/members")
+            );
+
+            const members = membersSnapshot.val() || {};
+
+            await startTrivia(currentRoomCode, members);
         }
+
 
         // Tell everyone in the room that the game has started.
         const roomRef = ref(
