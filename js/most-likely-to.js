@@ -7,7 +7,8 @@ import {
     set,
     update,
     remove,
-    onValue
+    onValue,
+    runTransaction
 } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
 
 // Prompts used by Most Likely To.
@@ -158,21 +159,17 @@ export async function finishMostLikelyToRound(roomCode) {
         throw new Error("Only the host can end the round.");
     }
 
-    const gameSnapshot = await get(
-        ref(database, `rooms/${roomCode}/game/state`)
-    );
+    const [gameSnapshot, votesSnapshot, membersSnapshot] =
+        await Promise.all([
+            get(ref(database, `rooms/${roomCode}/game/state`)),
+            get(ref(database, `rooms/${roomCode}/game/votes`)),
+            get(ref(database, `rooms/${roomCode}/members`))
+        ]);
 
     if (!gameSnapshot.exists() ||
         gameSnapshot.val().status !== "voting") {
-        throw new Error("There is no active voting round.");
+        return;
     }
-
-    const state = gameSnapshot.val();
-
-    const [votesSnapshot, membersSnapshot] = await Promise.all([
-        get(ref(database, `rooms/${roomCode}/game/votes`)),
-        get(ref(database, `rooms/${roomCode}/members`))
-    ]);
 
     const votes = votesSnapshot.val() || {};
     const members = membersSnapshot.val() || {};
@@ -183,14 +180,14 @@ export async function finishMostLikelyToRound(roomCode) {
         voteCounts[uid] = 0;
     });
 
-    Object.values(votes).forEach(vote => {
+    // Count only valid votes from current room members.
+    Object.entries(votes).forEach(([voterUid, vote]) => {
+
         if (
-            vote &&
-            vote.targetUid &&
-            Object.prototype.hasOwnProperty.call(
-                voteCounts,
-                vote.targetUid
-            )
+            members[voterUid] &&
+            vote?.targetUid &&
+            vote.targetUid !== voterUid &&
+            members[vote.targetUid]
         ) {
             voteCounts[vote.targetUid]++;
         }
@@ -207,15 +204,26 @@ export async function finishMostLikelyToRound(roomCode) {
         )
         : [];
 
-    const scores = { ...(state.scores || {}) };
+    // Use a transaction so this round can only award points once.
+    const stateRef = ref(
+        database,
+        `rooms/${roomCode}/game/state`
+    );
 
-    winners.forEach(uid => {
-        scores[uid] = (scores[uid] || 0) + 1;
-    });
+    const result = await runTransaction(stateRef, currentState => {
 
-    await update(
-        ref(database, `rooms/${roomCode}/game/state`),
-        {
+        if (!currentState || currentState.status !== "voting") {
+            return;
+        }
+
+        const scores = { ...(currentState.scores || {}) };
+
+        winners.forEach(uid => {
+            scores[uid] = (scores[uid] || 0) + 1;
+        });
+
+        return {
+            ...currentState,
             status: "results",
             scores: scores,
             result: {
@@ -223,8 +231,10 @@ export async function finishMostLikelyToRound(roomCode) {
                 winners: winners,
                 revealedAt: Date.now()
             }
-        }
-    );
+        };
+    });
+
+    return result;
 }
 
 // Start the next round.
@@ -287,5 +297,36 @@ export async function nextMostLikelyToRound(roomCode) {
             result: null,
             startedAt: Date.now()
         }
+    );
+}
+// End the game and return everyone to the room lobby.
+export async function endMostLikelyToGame(roomCode) {
+
+    const user = auth.currentUser;
+
+    if (!user) {
+        throw new Error("You must be signed in.");
+    }
+
+    const roomInfoRef = ref(
+        database,
+        `rooms/${roomCode}/info`
+    );
+
+    const roomSnapshot = await get(roomInfoRef);
+
+    if (!roomSnapshot.exists() ||
+        roomSnapshot.val().hostUid !== user.uid) {
+        throw new Error("Only the host can end the game.");
+    }
+
+    // Tell everyone to return to the room.
+    await update(roomInfoRef, {
+        gameStarted: false
+    });
+
+    // Clear the previous game's data.
+    await remove(
+        ref(database, `rooms/${roomCode}/game`)
     );
 }
