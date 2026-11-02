@@ -944,6 +944,44 @@ editProfileForm.addEventListener("submit", async (event) => {
                     
                     // Check whether the game has already been started.
                     const gameStarted = info.gameStarted === true;
+                    // Move everyone to the game screen when the host starts.
+                    if (gameStarted) {
+                    
+                        const activeGame = getGameById(info.selectedGameId);
+                    
+                        if (!activeGame) {
+                            showStatus("The selected game could not be found.", "#f87171");
+                            return;
+                        }
+                    
+                        // Display the selected game's information.
+                        activeGameTitle.textContent = activeGame.name;
+                        activeGameDescription.textContent = activeGame.description;
+                    
+                        // Display everyone currently in the room.
+                        gamePlayerList.replaceChildren();
+                    
+                        players.forEach(([uid, player]) => {
+                    
+                            const playerRow = document.createElement("div");
+                            playerRow.className = "player";
+                    
+                            const avatar = document.createElement("span");
+                            avatar.className = "player-avatar";
+                            avatar.textContent = player.avatar || "🙂";
+                    
+                            const name = document.createElement("span");
+                            name.className = "player-name";
+                            name.textContent = player.username || "Player";
+                    
+                            playerRow.append(avatar, name);
+                            gamePlayerList.appendChild(playerRow);
+                    
+                        });
+
+    // Show the game screen.
+    showScreen(gameScreen);
+}
                     
                     // Only the host can start the game, and only when everyone is ready.
                     startGameButton.disabled =
@@ -1052,9 +1090,17 @@ readyButton.addEventListener("click", async () => {
 
 });
         // Start the game (host only)
+// Start the game (host only)
 startGameButton.addEventListener("click", async () => {
 
     if (!currentRoomCode || !currentUser) {
+        return;
+    }
+
+    const selectedGameId = gameSelect.value;
+
+    if (!selectedGameId || !currentAvailableGameIds.includes(selectedGameId)) {
+        showStatus("Please select an available game first.", "#f87171");
         return;
     }
 
