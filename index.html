@@ -1387,6 +1387,382 @@ function startTriviaTimer(state) {
     }
 }
 
+        
+function addTriviaEndGameButton() {
+
+    // Only the host gets this button.
+    if (!currentRoomIsHost) {
+        return;
+    }
+
+    const button = document.createElement("button");
+
+    button.id = "trivia-end-game";
+    button.className = "trivia-end-button";
+    button.textContent = "End Game";
+
+    button.addEventListener("click", async () => {
+
+        if (!confirm("End Trivia and return everyone to the room?")) {
+            return;
+        }
+
+        button.disabled = true;
+        button.textContent = "Ending game...";
+
+        try {
+
+            clearTriviaTimers();
+
+            await endTriviaGame(currentRoomCode);
+
+        } catch (error) {
+
+            console.error(error);
+            showStatus(error.message, "#f87171");
+
+            button.disabled = false;
+            button.textContent = "End Game";
+        }
+    });
+
+    gameContent.appendChild(button);
+}
+
+
+function renderTrivia(gameData, members) {
+
+    const state = gameData?.state;
+
+    if (!state) {
+        gameContent.innerHTML = `
+            <p class="subtitle">Loading Trivia...</p>
+        `;
+        return;
+    }
+
+    const playerEntries = Object.entries(members || {});
+    const answers = gameData.answers || {};
+
+    const myAnswer = answers[currentUser.uid];
+
+    // Start or maintain the 20-second question timer.
+    if (state.status === "question") {
+        startTriviaTimer(state);
+    } else {
+        clearTriviaTimers();
+    }
+
+    // Check whether every current player has answered this question.
+    const allPlayersAnswered =
+        playerEntries.length > 0 &&
+        playerEntries.every(([uid]) =>
+            answers[uid]?.round === state.round
+        );
+
+    // Reveal the answer immediately when everyone has answered.
+    if (
+        currentRoomIsHost &&
+        state.status === "question" &&
+        allPlayersAnswered
+    ) {
+
+        finishTriviaQuestion(currentRoomCode).catch(error => {
+            console.error("Automatic Trivia completion failed:", error);
+        });
+    }
+
+    // Current question
+    if (state.status === "question") {
+
+        const question = TRIVIA_QUESTIONS[state.questionIndex];
+
+        if (!question) {
+            gameContent.innerHTML = `
+                <p>Unable to load this Trivia question.</p>
+            `;
+            return;
+        }
+
+        let questionHTML = `
+            <div class="trivia-game">
+
+                <p class="trivia-round">
+                    QUESTION ${state.round} OF ${state.questionOrder.length}
+                </p>
+
+                <h2 class="trivia-question">
+                    ${escapeHTML(question.question)}
+                </h2>
+
+                <p id="trivia-countdown" class="trivia-countdown">
+                    20 seconds remaining
+                </p>
+        `;
+
+        if (myAnswer?.round === state.round) {
+
+            questionHTML += `
+                <p class="trivia-waiting">
+                    Your answer is locked in. Waiting for the other players...
+                </p>
+            `;
+
+        } else {
+
+            questionHTML += `
+                <p class="trivia-instructions">
+                    Choose your answer before time runs out.
+                </p>
+
+                <div class="trivia-answer-grid">
+            `;
+
+            question.answers.forEach((answer, index) => {
+
+                const letter = String.fromCharCode(65 + index);
+
+                questionHTML += `
+                    <button
+                        class="trivia-answer-button"
+                        data-answer-index="${index}"
+                    >
+                        <span class="trivia-answer-letter">${letter}</span>
+                        <span>${escapeHTML(answer)}</span>
+                    </button>
+                `;
+            });
+
+            questionHTML += `</div>`;
+        }
+
+        questionHTML += `</div>`;
+
+        gameContent.innerHTML = questionHTML;
+        addTriviaEndGameButton();
+
+        // Answer buttons
+        document.querySelectorAll(".trivia-answer-button").forEach(button => {
+
+            button.addEventListener("click", async () => {
+
+                const answerIndex = Number(button.dataset.answerIndex);
+
+                document.querySelectorAll(".trivia-answer-button").forEach(item => {
+                    item.disabled = true;
+                });
+
+                button.classList.add("trivia-answer-selected");
+
+                try {
+
+                    await submitTriviaAnswer(
+                        currentRoomCode,
+                        answerIndex
+                    );
+
+                } catch (error) {
+
+                    console.error(error);
+                    showStatus(error.message, "#f87171");
+
+                    button.disabled = false;
+
+                    document.querySelectorAll(".trivia-answer-button").forEach(item => {
+                        item.disabled = false;
+                    });
+                }
+            });
+        });
+
+        return;
+    }
+
+    // Results phase
+    if (state.status === "results") {
+
+        const question = TRIVIA_QUESTIONS[state.questionIndex];
+        const result = state.result || {};
+        const answerResults = result.answerResults || {};
+
+        if (!question) {
+            gameContent.innerHTML = `
+                <p>Unable to load the Trivia results.</p>
+            `;
+            return;
+        }
+
+        let resultsHTML = `
+            <div class="trivia-game">
+
+                <p class="trivia-round">
+                    QUESTION ${state.round} RESULTS
+                </p>
+
+                <h2 class="trivia-question">
+                    ${escapeHTML(question.question)}
+                </h2>
+
+                <div class="trivia-results">
+                    <h3>Correct Answer</h3>
+
+                    <div class="trivia-correct-answer">
+                        ${escapeHTML(question.answers[result.correctAnswer])}
+                    </div>
+
+                    <h3>Player Results</h3>
+        `;
+
+        playerEntries.forEach(([uid, member]) => {
+
+            const playerResult = answerResults[uid];
+
+            let resultText = "No answer";
+            let resultClass = "trivia-result-none";
+
+            if (playerResult) {
+
+                if (playerResult.correct) {
+                    resultText = "Correct · +100 points";
+                    resultClass = "trivia-result-correct";
+                } else {
+                    resultText = "Incorrect";
+                    resultClass = "trivia-result-incorrect";
+                }
+            }
+
+            resultsHTML += `
+                <div class="trivia-result-row">
+                    <span>${escapeHTML(getPlayerName(member))}</span>
+                    <strong class="${resultClass}">
+                        ${resultText}
+                    </strong>
+                </div>
+            `;
+        });
+
+        resultsHTML += `
+                </div>
+
+                <h3 class="trivia-leaderboard-title">Leaderboard</h3>
+
+                <div class="trivia-leaderboard">
+        `;
+
+        Object.entries(state.scores || {})
+            .sort((a, b) => b[1] - a[1])
+            .forEach(([uid, score]) => {
+
+                const member = members[uid];
+
+                if (!member) return;
+
+                resultsHTML += `
+                    <div class="trivia-result-row">
+                        <span>${escapeHTML(getPlayerName(member))}</span>
+                        <strong>${score} points</strong>
+                    </div>
+                `;
+            });
+
+        if (currentRoomIsHost) {
+
+            resultsHTML += `
+                <button id="trivia-next-button" class="trivia-host-button">
+                    Next Question
+                </button>
+            `;
+
+        } else {
+
+            resultsHTML += `
+                <p class="trivia-waiting">
+                    Waiting for the host to start the next question.
+                </p>
+            `;
+        }
+
+        resultsHTML += `</div>`;
+
+        gameContent.innerHTML = resultsHTML;
+        addTriviaEndGameButton();
+
+        const nextButton = document.getElementById("trivia-next-button");
+
+        if (nextButton) {
+
+            nextButton.addEventListener("click", async () => {
+
+                nextButton.disabled = true;
+                nextButton.textContent = "Starting...";
+
+                try {
+
+                    await nextTriviaQuestion(currentRoomCode);
+
+                } catch (error) {
+
+                    console.error(error);
+                    showStatus(error.message, "#f87171");
+
+                    nextButton.disabled = false;
+                    nextButton.textContent = "Next Question";
+                }
+            });
+        }
+
+        return;
+    }
+
+    // Game complete
+    if (state.status === "complete") {
+
+        const leaderboard = Object.entries(state.scores || {})
+            .sort((a, b) => b[1] - a[1]);
+
+        let completeHTML = `
+            <div class="trivia-game">
+
+                <p class="trivia-round">GAME COMPLETE</p>
+
+                <h2 class="trivia-question">
+                    Final Leaderboard
+                </h2>
+
+                <div class="trivia-leaderboard">
+        `;
+
+        leaderboard.forEach(([uid, score], index) => {
+
+            const member = members[uid];
+
+            if (!member) return;
+
+            completeHTML += `
+                <div class="trivia-result-row">
+                    <span>
+                        ${index === 0 ? "🏆 " : ""}
+                        ${escapeHTML(getPlayerName(member))}
+                    </span>
+
+                    <strong>${score} points</strong>
+                </div>
+            `;
+        });
+
+        completeHTML += `
+                </div>
+            </div>
+        `;
+
+        gameContent.innerHTML = completeHTML;
+        addTriviaEndGameButton();
+
+        return;
+    }
+}
+
+
 
 
         function showStatus(message, color = "#fbbf24") {
