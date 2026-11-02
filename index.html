@@ -2322,8 +2322,14 @@ editProfileForm.addEventListener("submit", async (event) => {
                             }
 
                             
-                            // Show the game screen.
-                            showScreen(gameScreen);
+                            // Apply the correct visual theme for the selected game.
+                                gameScreen.classList.toggle(
+                                    "trivia-active",
+                                    info.selectedGameId === "trivia"
+                                );
+                                
+                                // Show the game screen.
+                                showScreen(gameScreen);
                             } else {
 
     // Return everyone to the room lobby when the host ends the game.
