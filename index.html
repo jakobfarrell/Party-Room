@@ -514,6 +514,11 @@
         
         let currentRoomIsHost = false;
         let currentAvailableGameIds = [];
+        // Most Likely To game listener and data
+        let stopListeningToMostLikelyTo = null;
+        let currentMostLikelyToRoomCode = null;
+        let currentMostLikelyToData = null;
+        let currentRoomMembers = {};
 
 
         // Display one screen at a time
@@ -525,6 +530,314 @@
         
             screen.classList.remove("hidden");
         }
+
+        function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    })[character]);
+}
+
+function getPlayerName(member) {
+    return member.username ||
+        member.displayName ||
+        member.name ||
+        "Player";
+}
+
+function renderMostLikelyTo(gameData, members) {
+
+    const state = gameData?.state;
+
+    if (!state) {
+        gameContent.innerHTML = `
+            <p class="subtitle">Loading Most Likely To...</p>
+        `;
+        return;
+    }
+
+    const playerEntries = Object.entries(members || {});
+    const myVote = gameData.votes?.[currentUser.uid];
+
+    // Voting phase
+    if (state.status === "voting") {
+
+        let votingHTML = `
+            <div class="mlt-game">
+                <p class="mlt-round">ROUND ${state.round}</p>
+
+                <h2 class="mlt-prompt">
+                    ${escapeHTML(state.prompt)}
+                </h2>
+        `;
+
+        if (myVote) {
+
+            votingHTML += `
+                <p class="mlt-subtitle">
+                    Your vote has been submitted. Waiting for the host to reveal the results.
+                </p>
+            `;
+
+        } else {
+
+            votingHTML += `
+                <p class="mlt-subtitle">
+                    Choose the player you think fits this prompt best.
+                </p>
+
+                <div class="mlt-player-grid">
+            `;
+
+            playerEntries.forEach(([uid, member]) => {
+
+                if (uid === currentUser.uid) return;
+
+                votingHTML += `
+                    <button
+                        class="mlt-player-button"
+                        data-player-uid="${escapeHTML(uid)}"
+                    >
+                        ${escapeHTML(getPlayerName(member))}
+                    </button>
+                `;
+            });
+
+            votingHTML += `</div>`;
+        }
+
+        if (currentRoomIsHost) {
+            votingHTML += `
+                <button id="mlt-finish-button" class="mlt-host-button">
+                    Reveal Results
+                </button>
+            `;
+        }
+
+        votingHTML += `</div>`;
+
+        gameContent.innerHTML = votingHTML;
+
+        // Voting buttons
+        document.querySelectorAll(".mlt-player-button").forEach(button => {
+
+            button.addEventListener("click", async () => {
+
+                const targetUid = button.dataset.playerUid;
+
+                button.disabled = true;
+                button.textContent = "Submitting...";
+
+                try {
+
+                    await submitMostLikelyToVote(
+                        currentRoomCode,
+                        targetUid
+                    );
+
+                } catch (error) {
+
+                    console.error(error);
+                    showStatus(error.message, "#f87171");
+
+                    button.disabled = false;
+                    button.textContent = getPlayerName(
+                        members[targetUid]
+                    );
+                }
+            });
+        });
+
+        // Host reveals results
+        const finishButton = document.getElementById(
+            "mlt-finish-button"
+        );
+
+        if (finishButton) {
+
+            finishButton.addEventListener("click", async () => {
+
+                finishButton.disabled = true;
+                finishButton.textContent = "Calculating...";
+
+                try {
+
+                    await finishMostLikelyToRound(currentRoomCode);
+
+                } catch (error) {
+
+                    console.error(error);
+                    showStatus(error.message, "#f87171");
+
+                    finishButton.disabled = false;
+                    finishButton.textContent = "Reveal Results";
+                }
+            });
+        }
+
+        return;
+    }
+
+    // Results phase
+    if (state.status === "results") {
+
+        const voteCounts = state.result?.voteCounts || {};
+        const winners = state.result?.winners || [];
+
+        const sortedResults = Object.entries(voteCounts)
+            .sort((a, b) => b[1] - a[1]);
+
+        let resultsHTML = `
+            <div class="mlt-game">
+                <p class="mlt-round">ROUND ${state.round} RESULTS</p>
+
+                <h2 class="mlt-prompt">
+                    ${escapeHTML(state.prompt)}
+                </h2>
+
+                <div class="mlt-results">
+        `;
+
+        if (sortedResults.length === 0) {
+
+            resultsHTML += `
+                <p>No votes were submitted this round.</p>
+            `;
+
+        } else {
+
+            sortedResults.forEach(([uid, count]) => {
+
+                const member = members[uid];
+
+                if (!member) return;
+
+                const isWinner = winners.includes(uid);
+
+                resultsHTML += `
+                    <div class="mlt-result-row">
+                        <span>
+                            ${isWinner ? "🏆 " : ""}
+                            ${escapeHTML(getPlayerName(member))}
+                        </span>
+
+                        <strong>
+                            ${count} ${count === 1 ? "vote" : "votes"}
+                        </strong>
+                    </div>
+                `;
+            });
+        }
+
+        resultsHTML += `
+                </div>
+
+                <h3>Leaderboard</h3>
+                <div class="mlt-leaderboard">
+        `;
+
+        Object.entries(state.scores || {})
+            .sort((a, b) => b[1] - a[1])
+            .forEach(([uid, score]) => {
+
+                const member = members[uid];
+
+                if (!member) return;
+
+                resultsHTML += `
+                    <div class="mlt-result-row">
+                        <span>${escapeHTML(getPlayerName(member))}</span>
+                        <strong>${score} points</strong>
+                    </div>
+                `;
+            });
+
+        resultsHTML += `</div>`;
+
+        if (currentRoomIsHost) {
+            resultsHTML += `
+                <button id="mlt-next-button" class="mlt-host-button">
+                    Next Round
+                </button>
+            `;
+        } else {
+            resultsHTML += `
+                <p class="mlt-subtitle">
+                    Waiting for the host to start the next round.
+                </p>
+            `;
+        }
+
+        resultsHTML += `</div>`;
+
+        gameContent.innerHTML = resultsHTML;
+
+        const nextButton = document.getElementById("mlt-next-button");
+
+        if (nextButton) {
+
+            nextButton.addEventListener("click", async () => {
+
+                nextButton.disabled = true;
+                nextButton.textContent = "Starting...";
+
+                try {
+
+                    await nextMostLikelyToRound(currentRoomCode);
+
+                } catch (error) {
+
+                    console.error(error);
+                    showStatus(error.message, "#f87171");
+
+                    nextButton.disabled = false;
+                    nextButton.textContent = "Next Round";
+                }
+            });
+        }
+
+        return;
+    }
+
+    // Game complete
+    if (state.status === "complete") {
+
+        const leaderboard = Object.entries(state.scores || {})
+            .sort((a, b) => b[1] - a[1]);
+
+        let completeHTML = `
+            <div class="mlt-game">
+                <p class="mlt-round">GAME COMPLETE</p>
+                <h2>Final Leaderboard</h2>
+                <div class="mlt-leaderboard">
+        `;
+
+        leaderboard.forEach(([uid, score], index) => {
+
+            const member = members[uid];
+
+            if (!member) return;
+
+            completeHTML += `
+                <div class="mlt-result-row">
+                    <span>
+                        ${index === 0 ? "🏆 " : ""}
+                        ${escapeHTML(getPlayerName(member))}
+                    </span>
+
+                    <strong>${score} points</strong>
+                </div>
+            `;
+        });
+
+        completeHTML += `</div></div>`;
+
+        gameContent.innerHTML = completeHTML;
+    }
+}
 
 
         function showStatus(message, color = "#fbbf24") {
