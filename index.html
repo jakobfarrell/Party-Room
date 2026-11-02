@@ -464,6 +464,13 @@
             getAvailableGames,
             getGameById
         } from "./js/game-manager.js";
+        import {
+            startMostLikelyTo,
+            listenToMostLikelyTo,
+            submitMostLikelyToVote,
+            finishMostLikelyToRound,
+            nextMostLikelyToRound
+        } from "./js/most-likely-to.js";
 
 
         // HTML elements
@@ -1089,7 +1096,7 @@ readyButton.addEventListener("click", async () => {
     readyButton.disabled = false;
 
 });
-        // Start the game (host only)
+     
 // Start the game (host only)
 startGameButton.addEventListener("click", async () => {
 
@@ -1105,9 +1112,24 @@ startGameButton.addEventListener("click", async () => {
     }
 
     startGameButton.disabled = true;
+    showStatus("Starting game...");
 
     try {
 
+        // Initialize Most Likely To before moving everyone
+        // to the game screen.
+        if (selectedGameId === "most-likely-to") {
+
+            const membersSnapshot = await get(
+                ref(database, "rooms/" + currentRoomCode + "/members")
+            );
+
+            const members = membersSnapshot.val() || {};
+
+            await startMostLikelyTo(currentRoomCode, members);
+        }
+
+        // Tell everyone in the room that the game has started.
         const roomRef = ref(
             database,
             "rooms/" + currentRoomCode + "/info"
@@ -1129,9 +1151,11 @@ startGameButton.addEventListener("click", async () => {
             "#f87171"
         );
 
+        startGameButton.disabled = false;
     }
 
 });
+
         // Save the host's selected game to Firebase.
         gameSelect.addEventListener("change", async () => {
         
