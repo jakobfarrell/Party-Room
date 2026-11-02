@@ -192,6 +192,123 @@
                 flex-direction: column;
             }
         }
+        /* Most Likely To game */
+
+            .mlt-game {
+                width: 100%;
+                max-width: 700px;
+                margin: 0 auto;
+                padding: 24px;
+                text-align: center;
+            }
+            
+            .mlt-round {
+                color: #a78bfa;
+                font-size: 13px;
+                font-weight: 800;
+                letter-spacing: 2px;
+                margin-bottom: 18px;
+            }
+            
+            .mlt-prompt {
+                font-size: clamp(24px, 5vw, 38px);
+                line-height: 1.3;
+                margin: 20px 0;
+                color: #ffffff;
+            }
+            
+            .mlt-subtitle {
+                color: #a1a1aa;
+                margin: 16px 0 24px;
+                line-height: 1.5;
+            }
+            
+            .mlt-player-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 12px;
+                margin: 28px 0;
+            }
+            
+            .mlt-player-button {
+                padding: 18px 14px;
+                border: 1px solid #52525b;
+                border-radius: 12px;
+                background: #27272a;
+                color: white;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background 0.2s, border-color 0.2s;
+            }
+            
+            .mlt-player-button:hover {
+                background: #4c1d95;
+                border-color: #a78bfa;
+            }
+            
+            .mlt-player-button:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+            
+            .mlt-host-button {
+                display: block;
+                width: 100%;
+                max-width: 300px;
+                margin: 28px auto 0;
+                padding: 15px 20px;
+                border: none;
+                border-radius: 10px;
+                background: #7c3aed;
+                color: white;
+                font-size: 16px;
+                font-weight: 700;
+                cursor: pointer;
+            }
+            
+            .mlt-host-button:hover {
+                background: #6d28d9;
+            }
+            
+            .mlt-host-button:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+            
+            .mlt-results,
+            .mlt-leaderboard {
+                margin: 24px auto;
+                max-width: 500px;
+                text-align: left;
+            }
+            
+            .mlt-result-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 16px;
+                padding: 15px;
+                margin-bottom: 8px;
+                background: #27272a;
+                border: 1px solid #3f3f46;
+                border-radius: 10px;
+            }
+            
+            .mlt-result-row strong {
+                color: #a78bfa;
+                white-space: nowrap;
+            }
+            
+            @media (max-width: 500px) {
+                .mlt-game {
+                    padding: 16px 8px;
+                }
+            
+                .mlt-player-grid {
+                    grid-template-columns: 1fr 1fr;
+                }
+            }
     </style>
 </head>
 
@@ -1136,6 +1253,7 @@ editProfileForm.addEventListener("submit", async (event) => {
                     }
                     
                     const members = roomData.members || {};
+                    currentRoomMembers = members;
                     currentPlayerReady =
                         members[currentUser.uid]?.ready === true;
                     
@@ -1296,12 +1414,54 @@ editProfileForm.addEventListener("submit", async (event) => {
                     
                             playerRow.append(avatar, name);
                             gamePlayerList.appendChild(playerRow);
-                    
-                        });
-
-    // Show the game screen.
-    showScreen(gameScreen);
-}
+                            
+                            });
+                            
+                            // Connect the live Most Likely To game data.
+                            if (info.selectedGameId === "most-likely-to") {
+                            
+                                // Only create one listener for this room.
+                                if (
+                                    currentMostLikelyToRoomCode !== roomCode ||
+                                    !stopListeningToMostLikelyTo
+                                ) {
+                            
+                                    // Stop any previous game listener.
+                                    if (stopListeningToMostLikelyTo) {
+                                        stopListeningToMostLikelyTo();
+                                    }
+                            
+                                    currentMostLikelyToRoomCode = roomCode;
+                            
+                                    stopListeningToMostLikelyTo = listenToMostLikelyTo(
+                                        roomCode,
+                                        (gameData) => {
+                            
+                                            currentMostLikelyToData = gameData;
+                            
+                                            renderMostLikelyTo(
+                                                gameData,
+                                                currentRoomMembers
+                                            );
+                            
+                                        }
+                                    );
+                                }
+                            
+                            } else {
+                            
+                                // Stop the listener if this is another game.
+                                if (stopListeningToMostLikelyTo) {
+                                    stopListeningToMostLikelyTo();
+                                    stopListeningToMostLikelyTo = null;
+                                }
+                            
+                                currentMostLikelyToRoomCode = null;
+                            }
+                            
+                            // Show the game screen.
+                            showScreen(gameScreen);
+                            }
                     
                     // Only the host can start the game, and only when everyone is ready.
                     startGameButton.disabled =
@@ -1558,7 +1718,14 @@ startGameButton.addEventListener("click", async () => {
                         stopListeningToRoom();
                         stopListeningToRoom = null;
                     }
-        
+                    if (stopListeningToMostLikelyTo) {
+                        stopListeningToMostLikelyTo();
+                        stopListeningToMostLikelyTo = null;
+                    }
+                    
+                    currentMostLikelyToRoomCode = null;
+                    currentMostLikelyToData = null;
+                            
                     currentRoomCode = null;
         
                     showHomeScreen();
