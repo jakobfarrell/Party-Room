@@ -835,6 +835,309 @@
         min-height: 62px;
     }
 }
+
+        /* =========================================
+   WOULD YOU RATHER GAME
+========================================= */
+
+#game-screen.would-you-rather-active {
+    background:
+        radial-gradient(ellipse at top left, rgba(20, 184, 166, 0.16), transparent 45%),
+        radial-gradient(ellipse at bottom right, rgba(251, 113, 133, 0.14), transparent 45%),
+        #101827;
+}
+
+#game-screen.would-you-rather-active .wyr-game {
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto;
+    color: #f1f5f9;
+    text-align: center;
+}
+
+.wyr-objective {
+    max-width: 700px;
+    margin: 0 auto 28px;
+    padding: 18px 22px;
+    border: 1px solid rgba(45, 212, 191, 0.35);
+    border-radius: 14px;
+    background: rgba(20, 184, 166, 0.10);
+    text-align: left;
+}
+
+.wyr-objective strong {
+    display: block;
+    margin-bottom: 7px;
+    color: #5eead4;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+}
+
+.wyr-objective p {
+    margin: 0;
+    color: #dbeafe;
+    line-height: 1.6;
+}
+
+.wyr-round {
+    margin: 20px 0 12px;
+    color: #5eead4;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 3px;
+}
+
+.wyr-question {
+    margin: 15px auto 22px;
+    max-width: 750px;
+    color: #ffffff;
+    font-size: clamp(1.7rem, 4vw, 2.6rem);
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+.wyr-countdown {
+    margin: 15px 0 25px;
+    color: #fda4af;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.wyr-instructions,
+.wyr-waiting {
+    margin: 20px 0;
+    color: #cbd5e1;
+    font-size: 1rem;
+}
+
+.wyr-option-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.wyr-option-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 190px;
+    padding: 28px 22px;
+    border: 2px solid transparent;
+    border-radius: 18px;
+    color: white;
+    font-size: 1.35rem;
+    font-weight: 750;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, filter 0.2s;
+}
+
+.wyr-option-a {
+    background: linear-gradient(145deg, #0f766e, #14b8a6);
+}
+
+.wyr-option-b {
+    background: linear-gradient(145deg, #be123c, #fb7185);
+}
+
+.wyr-option-button:hover:not(:disabled) {
+    transform: translateY(-5px);
+    filter: brightness(1.12);
+}
+
+.wyr-option-button:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+}
+
+.wyr-option-button.wyr-option-selected {
+    border-color: #ffffff;
+    opacity: 1;
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.18);
+}
+
+.wyr-option-label {
+    margin-bottom: 15px;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    opacity: 0.8;
+}
+
+.wyr-majority-result {
+    display: inline-block;
+    margin: 10px 0 28px;
+    padding: 13px 25px;
+    border: 1px solid rgba(94, 234, 212, 0.4);
+    border-radius: 12px;
+    background: rgba(20, 184, 166, 0.15);
+    color: #5eead4;
+    font-size: 1.2rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+.wyr-vote-results {
+    display: grid;
+    gap: 20px;
+    margin: 20px 0 35px;
+    text-align: left;
+}
+
+.wyr-vote-option {
+    padding: 20px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 14px;
+    background: rgba(30, 41, 59, 0.8);
+}
+
+.wyr-vote-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: #f8fafc;
+}
+
+.wyr-vote-heading strong {
+    color: #5eead4;
+}
+
+.wyr-vote-heading span {
+    color: #cbd5e1;
+    font-weight: 700;
+}
+
+.wyr-vote-option p {
+    margin: 12px 0;
+    color: #e2e8f0;
+    line-height: 1.5;
+}
+
+.wyr-vote-bar {
+    width: 100%;
+    height: 12px;
+    overflow: hidden;
+    border-radius: 20px;
+    background: #334155;
+}
+
+.wyr-vote-fill {
+    height: 100%;
+    border-radius: 20px;
+    transition: width 0.4s ease;
+}
+
+.wyr-fill-a {
+    background: #2dd4bf;
+}
+
+.wyr-fill-b {
+    background: #fb7185;
+}
+
+.wyr-section-title {
+    margin: 30px 0 15px;
+    color: #5eead4;
+    font-size: 1.15rem;
+    font-weight: 800;
+    text-align: left;
+}
+
+.wyr-result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+    color: #e2e8f0;
+    text-align: left;
+}
+
+.wyr-result-row strong {
+    text-align: right;
+}
+
+.wyr-result-correct {
+    color: #5eead4;
+}
+
+.wyr-result-incorrect {
+    color: #fb7185;
+}
+
+.wyr-result-none {
+    color: #94a3b8;
+}
+
+.wyr-leaderboard {
+    margin: 15px 0;
+    padding: 10px 15px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 14px;
+    background: rgba(30, 41, 59, 0.7);
+}
+
+.wyr-host-button,
+.wyr-end-button {
+    margin: 25px 8px 10px;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #0d9488, #14b8a6);
+    color: white;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: filter 0.2s, transform 0.2s;
+}
+
+.wyr-host-button:hover,
+.wyr-end-button:hover {
+    filter: brightness(1.15);
+    transform: translateY(-2px);
+}
+
+.wyr-host-button:disabled,
+.wyr-end-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#game-screen.would-you-rather-active .wyr-end-button {
+    background: #334155;
+    color: #fda4af;
+    border: 1px solid rgba(251, 113, 133, 0.4);
+}
+
+/* Mobile layout */
+@media (max-width: 600px) {
+
+    .wyr-option-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .wyr-option-button {
+        min-height: 135px;
+        font-size: 1.15rem;
+    }
+
+    .wyr-objective {
+        padding: 15px;
+    }
+
+    .wyr-result-row {
+        font-size: 0.9rem;
+    }
+
+    .wyr-vote-heading {
+        flex-direction: column;
+        gap: 5px;
+    }
+}
     </style>
 </head>
 
@@ -1124,6 +1427,15 @@
             endTriviaGame,
             TRIVIA_QUESTIONS
         } from "./js/trivia.js";
+        import {
+            startWouldYouRather,
+            listenToWouldYouRather,
+            submitWouldYouRatherVote,
+            finishWouldYouRatherRound,
+            nextWouldYouRatherRound,
+            endWouldYouRatherGame,
+            WOULD_YOU_RATHER_QUESTIONS
+        } from "./js/would-you-rather.js";
 
 
         // HTML elements
@@ -1185,6 +1497,16 @@
         let triviaTimerInterval = null;
         let triviaTimeout = null;
         let triviaTimerRoundKey = null;
+
+        // Would You Rather game listener and data
+        let stopListeningToWouldYouRather = null;
+        let currentWouldYouRatherRoomCode = null;
+        let currentWouldYouRatherData = null;
+        
+        // Would You Rather timer
+        let wouldYouRatherTimerInterval = null;
+        let wouldYouRatherTimeout = null;
+        let wouldYouRatherTimerRoundKey = null;
 
 
         // Display one screen at a time
@@ -1681,6 +2003,79 @@ function startTriviaTimer(state) {
     }
 }
 
+        function clearWouldYouRatherTimers() {
+
+    if (wouldYouRatherTimerInterval) {
+        clearInterval(wouldYouRatherTimerInterval);
+        wouldYouRatherTimerInterval = null;
+    }
+
+    if (wouldYouRatherTimeout) {
+        clearTimeout(wouldYouRatherTimeout);
+        wouldYouRatherTimeout = null;
+    }
+
+    wouldYouRatherTimerRoundKey = null;
+}
+
+function startWouldYouRatherTimer(state) {
+
+    const roundKey =
+        currentRoomCode + ":" + state.round + ":" + state.questionStartedAt;
+
+    // Don't restart the timer every time someone votes.
+    if (wouldYouRatherTimerRoundKey === roundKey) {
+        return;
+    }
+
+    clearWouldYouRatherTimers();
+    wouldYouRatherTimerRoundKey = roundKey;
+
+    const updateCountdown = () => {
+
+        const elapsed = Date.now() - state.questionStartedAt;
+
+        const remaining = Math.max(
+            0,
+            state.questionDuration - elapsed
+        );
+
+        const seconds = Math.ceil(remaining / 1000);
+
+        const countdownElement =
+            document.getElementById("would-you-rather-countdown");
+
+        if (countdownElement) {
+            countdownElement.textContent =
+                seconds + (seconds === 1 ? " second remaining" : " seconds remaining");
+        }
+    };
+
+    updateCountdown();
+
+    wouldYouRatherTimerInterval = setInterval(updateCountdown, 250);
+
+    // Only the host triggers automatic round completion.
+    if (currentRoomIsHost) {
+
+        const remaining = Math.max(
+            0,
+            state.questionDuration -
+            (Date.now() - state.questionStartedAt)
+        );
+
+        wouldYouRatherTimeout = setTimeout(async () => {
+
+            try {
+                await finishWouldYouRatherRound(currentRoomCode);
+            } catch (error) {
+                console.error("Automatic Would You Rather round completion failed:", error);
+            }
+
+        }, remaining);
+    }
+}
+
         
 function addTriviaEndGameButton() {
 
@@ -1709,6 +2104,47 @@ function addTriviaEndGameButton() {
             clearTriviaTimers();
 
             await endTriviaGame(currentRoomCode);
+
+        } catch (error) {
+
+            console.error(error);
+            showStatus(error.message, "#f87171");
+
+            button.disabled = false;
+            button.textContent = "End Game";
+        }
+    });
+
+    gameContent.appendChild(button);
+}
+
+        function addWouldYouRatherEndGameButton() {
+
+    // Only the host gets this button.
+    if (!currentRoomIsHost) {
+        return;
+    }
+
+    const button = document.createElement("button");
+
+    button.id = "wyr-end-game";
+    button.className = "wyr-end-button";
+    button.textContent = "End Game";
+
+    button.addEventListener("click", async () => {
+
+        if (!confirm("End Would You Rather and return everyone to the room?")) {
+            return;
+        }
+
+        button.disabled = true;
+        button.textContent = "Ending game...";
+
+        try {
+
+            clearWouldYouRatherTimers();
+
+            await endWouldYouRatherGame(currentRoomCode);
 
         } catch (error) {
 
@@ -2065,7 +2501,414 @@ function renderTrivia(gameData, members) {
     }
 }
 
+function renderWouldYouRather(gameData, members) {
 
+    const state = gameData?.state;
+
+    if (!state) {
+        gameContent.innerHTML = `
+            <p class="subtitle">Loading Would You Rather...</p>
+        `;
+        return;
+    }
+
+    const playerEntries = Object.entries(members || {});
+    const votes = gameData.votes || {};
+
+    const myVote = votes[currentUser.uid];
+
+    // Start or maintain the 20-second round timer.
+    if (state.status === "question") {
+        startWouldYouRatherTimer(state);
+    } else {
+        clearWouldYouRatherTimers();
+    }
+
+    // Check whether every current player has voted this round.
+    const allPlayersVoted =
+        playerEntries.length > 0 &&
+        playerEntries.every(([uid]) =>
+            votes[uid]?.round === state.round
+        );
+
+    // Reveal results immediately when everyone has voted.
+    if (
+        currentRoomIsHost &&
+        state.status === "question" &&
+        allPlayersVoted
+    ) {
+
+        finishWouldYouRatherRound(currentRoomCode).catch(error => {
+            console.error("Automatic Would You Rather completion failed:", error);
+        });
+    }
+
+    // Current round
+    if (state.status === "question") {
+
+        const question =
+            WOULD_YOU_RATHER_QUESTIONS[state.questionIndex];
+
+        if (!question) {
+            gameContent.innerHTML = `
+                <p>Unable to load this Would You Rather question.</p>
+            `;
+            return;
+        }
+
+        const elapsed = Date.now() - state.questionStartedAt;
+
+        const remaining = Math.max(
+            0,
+            state.questionDuration - elapsed
+        );
+
+        const secondsRemaining = Math.ceil(remaining / 1000);
+
+        let questionHTML = `
+            <div class="wyr-game">
+
+                <div class="wyr-objective">
+                    <strong>HOW TO PLAY</strong>
+                    <p>
+                        Predict what the majority will choose.
+                        Earn 100 points every time you correctly
+                        guess the more popular option.
+                    </p>
+                </div>
+
+                <p class="wyr-round">
+                    ROUND ${state.round} OF ${state.questionOrder.length}
+                </p>
+
+                <h2 class="wyr-question">
+                    ${escapeHTML(question.question)}
+                </h2>
+
+                <p id="would-you-rather-countdown" class="wyr-countdown">
+                    ${secondsRemaining}
+                    ${secondsRemaining === 1 ? "second" : "seconds"} remaining
+                </p>
+        `;
+
+        if (myVote?.round === state.round) {
+
+            questionHTML += `
+                <p class="wyr-waiting">
+                    Your prediction is locked in!
+                    Waiting for the other players...
+                </p>
+            `;
+
+        } else {
+
+            questionHTML += `
+                <p class="wyr-instructions">
+                    Which option do you think the majority will choose?
+                </p>
+
+                <div class="wyr-option-grid">
+
+                    <button
+                        class="wyr-option-button wyr-option-a"
+                        data-option="A"
+                    >
+                        <span class="wyr-option-label">OPTION A</span>
+                        <span>${escapeHTML(question.optionA)}</span>
+                    </button>
+
+                    <button
+                        class="wyr-option-button wyr-option-b"
+                        data-option="B"
+                    >
+                        <span class="wyr-option-label">OPTION B</span>
+                        <span>${escapeHTML(question.optionB)}</span>
+                    </button>
+
+                </div>
+            `;
+        }
+
+        questionHTML += `</div>`;
+
+        gameContent.innerHTML = questionHTML;
+        addWouldYouRatherEndGameButton();
+
+        // Voting buttons
+        document.querySelectorAll(".wyr-option-button").forEach(button => {
+
+            button.addEventListener("click", async () => {
+
+                const option = button.dataset.option;
+
+                document.querySelectorAll(".wyr-option-button").forEach(item => {
+                    item.disabled = true;
+                });
+
+                button.classList.add("wyr-option-selected");
+
+                try {
+
+                    await submitWouldYouRatherVote(
+                        currentRoomCode,
+                        option
+                    );
+
+                } catch (error) {
+
+                    console.error(error);
+                    showStatus(error.message, "#f87171");
+
+                    button.disabled = false;
+
+                    document.querySelectorAll(".wyr-option-button").forEach(item => {
+                        item.disabled = false;
+                    });
+                }
+            });
+        });
+
+        return;
+    }
+
+    // Results phase
+    if (state.status === "results") {
+
+        const question =
+            WOULD_YOU_RATHER_QUESTIONS[state.questionIndex];
+
+        const result = state.result || {};
+        const voteResults = result.voteResults || {};
+
+        if (!question) {
+            gameContent.innerHTML = `
+                <p>Unable to load the Would You Rather results.</p>
+            `;
+            return;
+        }
+
+        const countA = result.countA || 0;
+        const countB = result.countB || 0;
+        const totalVotes = countA + countB;
+
+        const percentageA = totalVotes > 0
+            ? Math.round((countA / totalVotes) * 100)
+            : 0;
+
+        const percentageB = totalVotes > 0
+            ? Math.round((countB / totalVotes) * 100)
+            : 0;
+
+        let majorityText = "";
+
+        if (result.majorityOption === "A") {
+            majorityText = "OPTION A WINS";
+        } else if (result.majorityOption === "B") {
+            majorityText = "OPTION B WINS";
+        } else {
+            majorityText = "IT'S A TIE!";
+        }
+
+        let resultsHTML = `
+            <div class="wyr-game">
+
+                <p class="wyr-round">
+                    ROUND ${state.round} RESULTS
+                </p>
+
+                <h2 class="wyr-question">
+                    ${escapeHTML(question.question)}
+                </h2>
+
+                <div class="wyr-majority-result">
+                    ${majorityText}
+                </div>
+
+                <div class="wyr-vote-results">
+
+                    <div class="wyr-vote-option">
+                        <div class="wyr-vote-heading">
+                            <strong>OPTION A</strong>
+                            <span>${countA} votes · ${percentageA}%</span>
+                        </div>
+
+                        <p>${escapeHTML(question.optionA)}</p>
+
+                        <div class="wyr-vote-bar">
+                            <div
+                                class="wyr-vote-fill wyr-fill-a"
+                                style="width: ${percentageA}%"
+                            ></div>
+                        </div>
+                    </div>
+
+                    <div class="wyr-vote-option">
+                        <div class="wyr-vote-heading">
+                            <strong>OPTION B</strong>
+                            <span>${countB} votes · ${percentageB}%</span>
+                        </div>
+
+                        <p>${escapeHTML(question.optionB)}</p>
+
+                        <div class="wyr-vote-bar">
+                            <div
+                                class="wyr-vote-fill wyr-fill-b"
+                                style="width: ${percentageB}%"
+                            ></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <h3 class="wyr-section-title">Player Predictions</h3>
+        `;
+
+        playerEntries.forEach(([uid, member]) => {
+
+            const playerResult = voteResults[uid];
+
+            let resultText = "No vote";
+            let resultClass = "wyr-result-none";
+
+            if (playerResult) {
+
+                if (playerResult.correct) {
+                    resultText = "Correct · +100 points";
+                    resultClass = "wyr-result-correct";
+                } else {
+                    resultText = "Incorrect";
+                    resultClass = "wyr-result-incorrect";
+                }
+            }
+
+            resultsHTML += `
+                <div class="wyr-result-row">
+                    <span>${escapeHTML(getPlayerName(member))}</span>
+                    <strong class="${resultClass}">
+                        ${resultText}
+                    </strong>
+                </div>
+            `;
+        });
+
+        resultsHTML += `
+                <h3 class="wyr-section-title">Leaderboard</h3>
+
+                <div class="wyr-leaderboard">
+        `;
+
+        Object.entries(state.scores || {})
+            .sort((a, b) => b[1] - a[1])
+            .forEach(([uid, score]) => {
+
+                const member = members[uid];
+
+                if (!member) return;
+
+                resultsHTML += `
+                    <div class="wyr-result-row">
+                        <span>${escapeHTML(getPlayerName(member))}</span>
+                        <strong>${score} points</strong>
+                    </div>
+                `;
+            });
+
+        if (currentRoomIsHost) {
+
+            resultsHTML += `
+                <button id="wyr-next-button" class="wyr-host-button">
+                    Next Round
+                </button>
+            `;
+
+        } else {
+
+            resultsHTML += `
+                <p class="wyr-waiting">
+                    Waiting for the host to start the next round.
+                </p>
+            `;
+        }
+
+        resultsHTML += `</div></div>`;
+
+        gameContent.innerHTML = resultsHTML;
+        addWouldYouRatherEndGameButton();
+
+        const nextButton = document.getElementById("wyr-next-button");
+
+        if (nextButton) {
+
+            nextButton.addEventListener("click", async () => {
+
+                nextButton.disabled = true;
+                nextButton.textContent = "Starting...";
+
+                try {
+
+                    await nextWouldYouRatherRound(currentRoomCode);
+
+                } catch (error) {
+
+                    console.error(error);
+                    showStatus(error.message, "#f87171");
+
+                    nextButton.disabled = false;
+                    nextButton.textContent = "Next Round";
+                }
+            });
+        }
+
+        return;
+    }
+
+    // Game complete
+    if (state.status === "complete") {
+
+        const leaderboard = Object.entries(state.scores || {})
+            .sort((a, b) => b[1] - a[1]);
+
+        let completeHTML = `
+            <div class="wyr-game">
+
+                <p class="wyr-round">GAME COMPLETE</p>
+
+                <h2 class="wyr-question">
+                    Final Leaderboard
+                </h2>
+
+                <div class="wyr-leaderboard">
+        `;
+
+        leaderboard.forEach(([uid, score], index) => {
+
+            const member = members[uid];
+
+            if (!member) return;
+
+            completeHTML += `
+                <div class="wyr-result-row">
+                    <span>
+                        ${index === 0 ? "🏆 " : ""}
+                        ${escapeHTML(getPlayerName(member))}
+                    </span>
+
+                    <strong>${score} points</strong>
+                </div>
+            `;
+        });
+
+        completeHTML += `
+                </div>
+            </div>
+        `;
+
+        gameContent.innerHTML = completeHTML;
+        addWouldYouRatherEndGameButton();
+
+        return;
+    }
+}
 
 
         function showStatus(message, color = "#fbbf24") {
@@ -2615,12 +3458,61 @@ editProfileForm.addEventListener("submit", async (event) => {
                                 clearTriviaTimers();
                             }
 
+                        // Connect the live Would You Rather game data.
+if (info.selectedGameId === "would-you-rather") {
+
+    // Only create one listener for this room.
+    if (
+        currentWouldYouRatherRoomCode !== roomCode ||
+        !stopListeningToWouldYouRather
+    ) {
+
+        // Stop any previous Would You Rather listener.
+        if (stopListeningToWouldYouRather) {
+            stopListeningToWouldYouRather();
+        }
+
+        currentWouldYouRatherRoomCode = roomCode;
+
+        stopListeningToWouldYouRather = listenToWouldYouRather(
+            roomCode,
+            (gameData) => {
+
+                currentWouldYouRatherData = gameData;
+
+                renderWouldYouRather(
+                    gameData,
+                    currentRoomMembers
+                );
+
+            }
+        );
+    }
+
+} else {
+
+    // Stop the listener if this is another game.
+    if (stopListeningToWouldYouRather) {
+        stopListeningToWouldYouRather();
+        stopListeningToWouldYouRather = null;
+    }
+
+    currentWouldYouRatherRoomCode = null;
+    currentWouldYouRatherData = null;
+    clearWouldYouRatherTimers();
+}
+
                             
                             // Apply the correct visual theme for the selected game.
-                                gameScreen.classList.toggle(
-                                    "trivia-active",
-                                    info.selectedGameId === "trivia"
-                                );
+                                    gameScreen.classList.toggle(
+                                        "trivia-active",
+                                        info.selectedGameId === "trivia"
+                                    );
+                                    
+                                    gameScreen.classList.toggle(
+                                        "would-you-rather-active",
+                                        info.selectedGameId === "would-you-rather"
+                                    );
                                 
                                 // Show the game screen.
                                 showScreen(gameScreen);
@@ -2648,6 +3540,17 @@ editProfileForm.addEventListener("submit", async (event) => {
     currentTriviaData = null;
 
     clearTriviaTimers();
+
+                        // Stop the Would You Rather listener and clean up its data.
+                        if (stopListeningToWouldYouRather) {
+                            stopListeningToWouldYouRather();
+                            stopListeningToWouldYouRather = null;
+                        }
+                        
+                        currentWouldYouRatherRoomCode = null;
+                        currentWouldYouRatherData = null;
+                        
+                        clearWouldYouRatherTimers();
 
 
     gameContent.innerHTML = `
@@ -2801,10 +3704,20 @@ startGameButton.addEventListener("click", async () => {
             const membersSnapshot = await get(
                 ref(database, "rooms/" + currentRoomCode + "/members")
             );
-
+        
             const members = membersSnapshot.val() || {};
-
+        
             await startTrivia(currentRoomCode, members);
+        
+        } else if (selectedGameId === "would-you-rather") {
+        
+            const membersSnapshot = await get(
+                ref(database, "rooms/" + currentRoomCode + "/members")
+            );
+        
+            const members = membersSnapshot.val() || {};
+        
+            await startWouldYouRather(currentRoomCode, members);
         }
 
 
