@@ -1149,9 +1149,9 @@ function renderMostLikelyTo(gameData, members) {
         });
 
                 return;
-    }
+    
 
-     
+     }
 
     // Results phase
     if (state.status === "results") {
@@ -1312,6 +1312,81 @@ function renderMostLikelyTo(gameData, members) {
         addEndGameButton();
     }
 }
+
+        
+function clearTriviaTimers() {
+
+    if (triviaTimerInterval) {
+        clearInterval(triviaTimerInterval);
+        triviaTimerInterval = null;
+    }
+
+    if (triviaTimeout) {
+        clearTimeout(triviaTimeout);
+        triviaTimeout = null;
+    }
+
+    triviaTimerRoundKey = null;
+}
+
+function startTriviaTimer(state) {
+
+    const roundKey =
+        currentRoomCode + ":" + state.round + ":" + state.questionStartedAt;
+
+    // Don't restart the timer every time someone answers.
+    if (triviaTimerRoundKey === roundKey) {
+        return;
+    }
+
+    clearTriviaTimers();
+    triviaTimerRoundKey = roundKey;
+
+    const updateCountdown = () => {
+
+        const elapsed = Date.now() - state.questionStartedAt;
+
+        const remaining = Math.max(
+            0,
+            state.questionDuration - elapsed
+        );
+
+        const seconds = Math.ceil(remaining / 1000);
+
+        const countdownElement =
+            document.getElementById("trivia-countdown");
+
+        if (countdownElement) {
+            countdownElement.textContent =
+                seconds + (seconds === 1 ? " second remaining" : " seconds remaining");
+        }
+    };
+
+    updateCountdown();
+
+    triviaTimerInterval = setInterval(updateCountdown, 250);
+
+    // Only the host triggers automatic question completion.
+    if (currentRoomIsHost) {
+
+        const remaining = Math.max(
+            0,
+            state.questionDuration -
+            (Date.now() - state.questionStartedAt)
+        );
+
+        triviaTimeout = setTimeout(async () => {
+
+            try {
+                await finishTriviaQuestion(currentRoomCode);
+            } catch (error) {
+                console.error("Automatic Trivia question completion failed:", error);
+            }
+
+        }, remaining);
+    }
+}
+
 
 
         function showStatus(message, color = "#fbbf24") {
